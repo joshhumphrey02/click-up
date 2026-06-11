@@ -154,9 +154,9 @@ export const ExecutiveApprovals: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: EXECUTIVE-DECISIONS
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">8. Executive Approval Centre</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Executive Approval Centre</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            The final C-suite decision-making room. Authorize structural change orders, high-value procurement requisitions, emergency safety checklists, and corporate policies.
+            Authorize structural changes, high-value procurement requisitions, emergency safety checklists, and corporate policies.
           </p>
         </div>
         <div className="text-[11px] font-bold text-[#7C3AED] bg-purple-50 border border-purple-200 p-3 rounded-xl flex items-center gap-2">

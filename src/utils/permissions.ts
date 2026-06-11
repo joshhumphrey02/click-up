@@ -16,7 +16,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/executive-dashboard',
     '/forms-sops',
     '/training',
-    '/roadmap'
+    '/roadmap',
+    '/integrations'
   ],
   'Department Manager': [
     '/',
@@ -31,7 +32,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/automations',
     '/forms-sops',
     '/training',
-    '/roadmap'
+    '/roadmap',
+    '/integrations'
   ],
   'End User': [
     '/',
@@ -53,7 +55,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     '/automations',
     '/executive-dashboard',
     '/training',
-    '/roadmap'
+    '/roadmap',
+    '/integrations'
   ]
 };
 

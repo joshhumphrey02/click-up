@@ -97,9 +97,9 @@ export const FormsAndSOPs: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: SOP-DIGITIZATION
           </span>
-          <h2 className="text-xl font-black text-slate-905 mt-2">13. SOP Digitization</h2>
+          <h2 className="text-xl font-black text-slate-905 mt-2">SOP Digitization</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            See the transformation from vulnerable paper and loose PDFs into action-triggered, automated ClickUp workflow schemas.
+            Convert standard operating procedures, policy guidelines, and forms into responsive workflows.
           </p>
         </div>
         <div className="shrink-0 flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold select-none">

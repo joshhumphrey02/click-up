@@ -171,9 +171,9 @@ export const ExecutiveDashboard: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Workspace: REPORTING-TIERS
           </span>
-          <h2 className="text-xl font-black text-slate-905 mt-2">12. Dashboards & Reporting</h2>
+          <h2 className="text-xl font-black text-slate-905 mt-2">Dashboards & Reporting</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold text-slate-500">
-            Real-time, synchronized data streams across standard workflow spaces. Answer business policy questions dynamically based on state.
+            Real-time, synchronized data streams across all configured workflow spaces.
           </p>
         </div>
 

@@ -213,7 +213,7 @@ export const WorkspaceArchitecture: React.FC = () => {
           </span>
           <h1 className="text-2xl font-black mt-3 tracking-tight">Enterprise Workspace Architecture</h1>
           <p className="text-xs text-blue-300 mt-1 max-w-2xl leading-relaxed">
-            This blueprint demonstrates how the client organization’s digital operations are structured into ClickUp hierarchical divisions. By nesting processes, tasks can move through unified statuses with absolute accountability.
+            A blueprint demonstrating how digital operations are organized into hierarchical ClickUp Spaces, Folders, and Lists.
           </p>
         </div>
       </div>

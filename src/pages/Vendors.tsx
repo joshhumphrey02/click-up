@@ -162,9 +162,9 @@ export const Vendors: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: VENDOR-PORTAL
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">6. Vendor Management Portal</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Vendor Management Portal</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Track qualified supplier portfolios, annual CAC compliance, SLA scores, active dispute files, and simulate external supplier views.
+            Track qualified supplier portfolios, compliance, SLA scores, and client-vendor communications.
           </p>
         </div>
 

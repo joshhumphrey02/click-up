@@ -34,36 +34,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ id }) => {
     {
       title: 'Core Proposal & Strategy',
       items: [
-        { to: '/', icon: Home, label: '1. Proposal Overview' },
-        { to: '/architecture', icon: Layers, label: '2. Workspace Architecture' },
+        { to: '/', icon: Home, label: 'Proposal Overview' },
+        { to: '/architecture', icon: Layers, label: 'Workspace Architecture' },
       ],
     },
     {
       title: 'Operational Workspace Spaces',
       items: [
-        { to: '/hr-operations', icon: Users, label: '3. HR Operations' },
-        { to: '/procurement', icon: ShoppingCart, label: '4. Procurement Workflow' },
-        { to: '/projects', icon: Briefcase, label: '5. Project Tracker' },
-        { to: '/vendors', icon: Truck, label: '6. Vendor Portal' },
-        { to: '/hse', icon: ShieldAlert, label: '7. HSE Monitoring' },
+        { to: '/hr-operations', icon: Users, label: 'HR Operations' },
+        { to: '/procurement', icon: ShoppingCart, label: 'Procurement Workflow' },
+        { to: '/projects', icon: Briefcase, label: 'Project Tracker' },
+        { to: '/vendors', icon: Truck, label: 'Vendor Portal' },
+        { to: '/hse', icon: ShieldAlert, label: 'HSE Monitoring' },
       ],
     },
     {
       title: 'Governance & Communications',
       items: [
-        { to: '/approvals', icon: FileCheck, label: '8. Executive Approval Centre' },
-        { to: '/meetings', icon: Video, label: '9. Virtual Meetings' },
-        { to: '/communications', icon: MessageSquare, label: '10. Interdepartmental Comms' },
+        { to: '/approvals', icon: FileCheck, label: 'Executive Approval Centre' },
+        { to: '/meetings', icon: Video, label: 'Virtual Meetings' },
+        { to: '/communications', icon: MessageSquare, label: 'Interdepartmental Comms' },
       ],
     },
     {
       title: 'Workspace Enablement',
       items: [
-        { to: '/automations', icon: Cpu, label: '11. Workflow Automations' },
-        { to: '/executive-dashboard', icon: LayoutDashboard, label: '12. Dashboards & Reporting' },
-        { to: '/forms-sops', icon: FileText, label: '13. SOP Digitization' },
-        { to: '/training', icon: UserCheck, label: '14. User Training' },
-        { to: '/roadmap', icon: Milestone, label: '15. Implementation Timeline' },
+        { to: '/integrations', icon: Link2, label: 'Enterprise Integrations' },
+        { to: '/automations', icon: Cpu, label: 'Workflow Automations' },
+        { to: '/executive-dashboard', icon: LayoutDashboard, label: 'Dashboards & Reporting' },
+        { to: '/forms-sops', icon: FileText, label: 'SOP Digitization' },
+        { to: '/training', icon: UserCheck, label: 'User Training' },
+        { to: '/roadmap', icon: Milestone, label: 'Implementation Timeline' },
       ],
     },
   ];

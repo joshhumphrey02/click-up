@@ -125,9 +125,9 @@ export const HROperations: React.FC = () => {
           <span className="text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: HR-OPS
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">3. HR Operations System</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">HR Operations Space</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Configured Space for tracking talent acquisition, onboarding automations, records curation, and employee state changes.
+            Track talent acquisition pipelines, candidate reviews, employee onboarding, and personnel status logs.
           </p>
         </div>
 

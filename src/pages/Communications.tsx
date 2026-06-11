@@ -214,9 +214,9 @@ export const Communications: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: INTER-DEPT-COMMS
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">10. Interdepartmental Communication</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Interdepartmental Communication</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Track interdepartmental dependencies, request SLA times, joint-venture committee sign-offs, and simulate cross-departmental collaboration chat grids.
+            Track departmental dependencies, SLA times, corporate sign-offs, and collaborative discussion chats.
           </p>
         </div>
 

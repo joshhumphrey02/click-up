@@ -143,9 +143,9 @@ export const Roadmap: React.FC = () => {
           <span className="text-[10px] bg-purple-105 bg-purple-200 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Workspace: DEPLOYMENT-PLAN
           </span>
-          <h2 className="text-xl font-black text-slate-905 mt-2">15. Implementation Timeline</h2>
+          <h2 className="text-xl font-black text-slate-905 mt-2">Implementation Timeline</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Chronological 10-week implementation roadmap aligned with the corporate proposal. Click on any phase track item below to inspect milestones.
+            Chronological 10-week roadmap detailing implementation phases, deployment targets, and milestones.
           </p>
         </div>
         <div className="shrink-0 flex items-center gap-2">

@@ -187,9 +187,9 @@ export const Projects: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: PMO-TRACKER
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">5. Project Execution Tracker</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Project Execution Tracker</h2>
           <p className="text-xs text-slate-550 mt-1 font-semibold">
-            Central monitoring space for site milestones, RAG indicator matrixes, risk mitigation sheets, and real-time budget vs. actual analytics.
+            Monitor milestones, RAG indicators, risk mitigation status, and project financial tracking.
           </p>
         </div>
 

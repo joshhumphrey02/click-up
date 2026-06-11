@@ -175,9 +175,9 @@ export const Meetings: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: MEETING-OPERATIONS
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">9. Virtual Meeting Management</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Virtual Meeting Management</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Central coordination chamber containing digital agendas, scheduled invitations, board resolution logs, and action items checklists.
+            Coordinate digital agendas, invitations, board resolutions, and action checklists.
           </p>
         </div>
 

@@ -80,7 +80,7 @@ export const UserTraining: React.FC = () => {
           </span>
           <h1 className="text-2xl font-black mt-3 tracking-tight">User Onboarding & Training Strategy</h1>
           <p className="text-xs text-blue-300 mt-1 max-w-2xl leading-relaxed">
-            Transitioning your organization to ClickUp is a human migration first, and a digital one second. Our change management framework ensures zero downtime, full staff confidence, and immediate utility.
+            A structured change management framework designed to ensure seamless transition, complete staff onboarding, and immediate operational utility.
           </p>
         </div>
       </div>

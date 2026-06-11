@@ -84,7 +84,7 @@ export const Home: React.FC = () => {
         </h1>
         
         <p className="text-sm md:text-md text-slate-505 leading-relaxed max-w-3xl mx-auto font-medium">
-          A centralized ClickUp Business Operations Management Platform designed to digitize workflows, automate approvals, improve accountability, and provide real-time visibility across HR, Procurement, Projects, Vendors, HSE, Executive Approvals, Meetings, and Interdepartmental Communication.
+          A centralized ClickUp operations platform to digitize workflows, automate approvals, and maintain real-time tracking across all key departments.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-3">

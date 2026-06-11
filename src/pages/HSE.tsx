@@ -182,9 +182,9 @@ export const HSE: React.FC = () => {
           <span className="text-[10px] bg-rose-100 text-rose-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: HSE-COMPLIANCE
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">7. HSE Monitoring Dashboard</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">HSE Monitoring Dashboard</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Configured workspace tracking environmental hazards, incident investigation logs, mitigation frameworks, and critical C-suite alert escalations.
+            Track environmental hazards, incident investigation logs, mitigation actions, and safety checklists.
           </p>
         </div>
 

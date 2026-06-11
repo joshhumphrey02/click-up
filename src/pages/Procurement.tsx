@@ -211,9 +211,9 @@ export const Procurement: React.FC = () => {
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
             ClickUp Space: Procurement-PRs
           </span>
-          <h2 className="text-xl font-black text-slate-900 mt-2">4. Procurement Workflow System</h2>
+          <h2 className="text-xl font-black text-slate-900 mt-2">Procurement Workflow</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
-            Standardized space containing purchase requests, quotations, and commercial sign-offs mapped onto threshold compliance rules.
+            Manage purchase requisitions, quotation requests, and corporate approvals against threshold guidelines.
           </p>
         </div>
         <div className="text-[11px] font-bold text-slate-500 bg-slate-100 p-3 rounded-lg border border-slate-200">
