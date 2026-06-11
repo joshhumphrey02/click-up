@@ -32,35 +32,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ id }) => {
 
   const navGroups = [
     {
-      title: 'Operational Systems',
+      title: 'Core Proposal & Strategy',
       items: [
-        { to: '/', icon: Home, label: 'Overview' },
-        { to: '/executive-dashboard', icon: LayoutDashboard, label: 'Executive Dashboard' },
-        { to: '/manager-dashboard', icon: Briefcase, label: 'Manager Dashboard' },
-        { to: '/staff-workspace', icon: UserCheck, label: 'Staff Workspace' },
-        { to: '/hr-operations', icon: Users, label: 'HR Operations' },
-        { to: '/procurement', icon: ShoppingCart, label: 'Procurement' },
-        { to: '/projects', icon: Layers, label: 'Projects' },
-        { to: '/vendors', icon: Truck, label: 'Vendors' },
-        { to: '/hse', icon: ShieldAlert, label: 'HSE Monitoring' },
+        { to: '/', icon: Home, label: '1. Proposal Overview' },
+        { to: '/architecture', icon: Layers, label: '2. Workspace Architecture' },
       ],
     },
     {
-      title: 'Management',
+      title: 'Operational Workspace Spaces',
       items: [
-        { to: '/approvals', icon: FileCheck, label: 'Executive Approvals' },
-        { to: '/meetings', icon: Video, label: 'Virtual Meetings' },
-        { to: '/communications', icon: MessageSquare, label: 'Internal Comms' },
-        { to: '/forms-sops', icon: FileText, label: 'Forms & SOPs' },
+        { to: '/hr-operations', icon: Users, label: '3. HR Operations' },
+        { to: '/procurement', icon: ShoppingCart, label: '4. Procurement Workflow' },
+        { to: '/projects', icon: Briefcase, label: '5. Project Tracker' },
+        { to: '/vendors', icon: Truck, label: '6. Vendor Portal' },
+        { to: '/hse', icon: ShieldAlert, label: '7. HSE Monitoring' },
       ],
     },
     {
-      title: 'System',
+      title: 'Governance & Communications',
       items: [
-        { to: '/automations', icon: Cpu, label: 'Automations' },
-        { to: '/integrations', icon: Link2, label: 'Integrations' },
-        { to: '/access-control', icon: Lock, label: 'Access Control' },
-        { to: '/roadmap', icon: Milestone, label: 'Roadmap' },
+        { to: '/approvals', icon: FileCheck, label: '8. Executive Approval Centre' },
+        { to: '/meetings', icon: Video, label: '9. Virtual Meetings' },
+        { to: '/communications', icon: MessageSquare, label: '10. Interdepartmental Comms' },
+      ],
+    },
+    {
+      title: 'Workspace Enablement',
+      items: [
+        { to: '/automations', icon: Cpu, label: '11. Workflow Automations' },
+        { to: '/executive-dashboard', icon: LayoutDashboard, label: '12. Dashboards & Reporting' },
+        { to: '/forms-sops', icon: FileText, label: '13. SOP Digitization' },
+        { to: '/training', icon: UserCheck, label: '14. User Training' },
+        { to: '/roadmap', icon: Milestone, label: '15. Implementation Timeline' },
       ],
     },
   ];
@@ -83,12 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ id }) => {
     >
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-3 border-b border-white/10">
-        <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white">
-          <BrainCircuit className="h-5 w-5" />
+        <div className="w-8 h-8 bg-[#7C3AED] rounded flex items-center justify-center text-white font-extrabold animate-pulse">
+          CU
         </div>
-        <span className="font-bold text-sm leading-tight text-white tracking-wide">
-          COMMAND<br />
-          <span className="text-blue-300">CENTER</span>
+        <span className="font-bold text-xs uppercase leading-tight text-white tracking-wider">
+          ClickUp<br />
+          <span className="text-blue-400 font-extrabold text-[10px]">Operations Hub</span>
         </span>
       </div>
 

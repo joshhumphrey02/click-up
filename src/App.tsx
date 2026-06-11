@@ -5,6 +5,7 @@ import { AppLayout } from './components/layout/AppLayout';
 
 // Lazy loading components to optimize performance and prevent token limit issues
 const Home = lazy(() => import('./pages/Home'));
+const WorkspaceArchitecture = lazy(() => import('./pages/WorkspaceArchitecture'));
 const ExecutiveDashboard = lazy(() => import('./pages/ExecutiveDashboard'));
 const ManagerDashboard = lazy(() => import('./pages/ManagerDashboard'));
 const StaffWorkspace = lazy(() => import('./pages/StaffWorkspace'));
@@ -20,6 +21,7 @@ const FormsAndSOPs = lazy(() => import('./pages/FormsAndSOPs'));
 const Automations = lazy(() => import('./pages/Automations'));
 const Integrations = lazy(() => import('./pages/Integrations'));
 const AccessControl = lazy(() => import('./pages/AccessControl'));
+const UserTraining = lazy(() => import('./pages/UserTraining'));
 const Roadmap = lazy(() => import('./pages/Roadmap'));
 
 // A luxurious full-screen loading micro-indicator
@@ -38,6 +40,7 @@ export default function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/architecture" element={<WorkspaceArchitecture />} />
               <Route path="/executive-dashboard" element={<ExecutiveDashboard />} />
               <Route path="/manager-dashboard" element={<ManagerDashboard />} />
               <Route path="/staff-workspace" element={<StaffWorkspace />} />
@@ -53,6 +56,7 @@ export default function App() {
               <Route path="/automations" element={<Automations />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/access-control" element={<AccessControl />} />
+              <Route path="/training" element={<UserTraining />} />
               <Route path="/roadmap" element={<Roadmap />} />
             </Route>
           </Routes>

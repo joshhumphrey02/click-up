@@ -7,353 +7,483 @@ import {
   User,
   Activity,
   HeartHandshake,
-  CheckCircle2
+  CheckCircle2,
+  Calendar,
+  CheckSquare,
+  HelpCircle,
+  Clock,
+  Sparkles,
+  Sliders,
+  CheckSquare2
 } from 'lucide-react';
 import { useCommandCenter } from '../context/CommandCenterContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { StatCard } from '../components/ui/StatCard';
-import { Badge, getStatusVariant } from '../components/ui/Badge';
+import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
-export const HSE: React.FC = () => {
-  const { hseIncidents, addHseIncident } = useCommandCenter();
+interface IncidentItem {
+  id: string;
+  date: string;
+  location: string;
+  type: string;
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
+  status: 'Open' | 'Investigating' | 'Resolved';
+  actionsTaken: string;
+  dateClosed: string;
+}
 
+export const HSE: React.FC = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [escalationTriggered, setEscalationTriggered] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Form Fields
+  const [incDate, setIncDate] = useState(new Date().toISOString().split('T')[0]);
   const [incTitle, setIncTitle] = useState('');
-  const [incType, setIncType] = useState<'Near Miss' | 'Lost Time Injury' | 'Environmental' | 'First Aid' | 'Property Damage'>('Near Miss');
-  const [riskLevel, setRiskLevel] = useState<'Low' | 'Medium' | 'High' | 'Critical'>('Medium');
-  const [location, setLocation] = useState('');
-  const [owner, setOwner] = useState('Maryam Bello');
-  const [closeDate, setCloseDate] = useState('');
-  const [desc, setDesc] = useState('');
+  const [incType, setIncType] = useState('Safety Hazard Near-Miss');
+  const [severity, setSeverity] = useState<'Critical' | 'High' | 'Medium' | 'Low'>('Medium');
+  const [locInput, setLocInput] = useState('');
+  const [actionsInput, setActionsInput] = useState('');
 
-  const handleSubmitIncident = (e: React.FormEvent) => {
+  // 1. Incidents register data with specified columns
+  const [incidents, setIncidents] = useState<IncidentItem[]>([
+    {
+      id: 'HSE-701',
+      date: '2026-06-05',
+      location: 'South Substation Base Generator Unit 4',
+      type: 'First Aid - Minor Hand Scraping',
+      severity: 'Low',
+      status: 'Resolved',
+      actionsTaken: 'Cleaned wound with standard antiseptics, dressed, completed safety brief.',
+      dateClosed: '2026-06-05'
+    },
+    {
+      id: 'HSE-702',
+      date: '2026-06-08',
+      location: 'Port Harcourt Jetty Loading Dock B',
+      type: 'Environmental Fuel Spillage (15 Liters)',
+      severity: 'High',
+      status: 'Investigating',
+      actionsTaken: 'Deployed sawdust absorbent pads, cordoned off drainage channels, dispatched containment inspectors.',
+      dateClosed: 'Pending Audit'
+    },
+    {
+      id: 'HSE-703',
+      date: '2026-06-10',
+      location: 'VGC Main Overhaul Steel Scaffold Rack',
+      type: 'Critical Scaffold Structural Sagging',
+      severity: 'Critical',
+      status: 'Open',
+      actionsTaken: 'Site access immediately locked, red-flag tag attached, emergency structural crew contacted.',
+      dateClosed: 'Pending Review'
+    },
+    {
+      id: 'HSE-704',
+      date: '2025-05-28',
+      location: 'Corporate HQ Server Room Base Block',
+      type: 'Electrical Short-circuit Sparking',
+      severity: 'Medium',
+      status: 'Resolved',
+      actionsTaken: 'Manual safety breakers toggled, circuit breaker swap-out by electrical contractor, thermographic review done.',
+      dateClosed: '2025-05-29'
+    }
+  ]);
+
+  // 2. Safety Audit Checklist (interactive checklist)
+  const [auditChecks, setAuditChecks] = useState([
+    { id: 'AC-1', item: 'Verify all fire suppressors have active certification gauges', checked: true },
+    { id: 'AC-2', item: 'Conduct physical audit of core team high-visibility PPE gears', checked: true },
+    { id: 'AC-3', item: 'Ensure secondary emergency fire exits are entirely unblocked', checked: false },
+    { id: 'AC-4', item: 'Recalibrate gas leak alarm telemetry sensor probes', checked: false },
+    { id: 'AC-5', item: 'Restock electrical shocks first aid medical lockers', checked: true }
+  ]);
+
+  // 3. Safety Corrective Action Tracker
+  const [correctiveActions, setCorrectiveActions] = useState([
+    { id: 'CAR-91', hazard: 'Structural Sagging Scaffold VGC', action: 'Dismantle and install thicker steel base beams', owner: 'Maryam Bello', status: 'In Progress' },
+    { id: 'CAR-92', hazard: 'Refinery Spillage PH', action: 'Install automatic safety fuel shut-off valves', owner: 'Olumide Awosika', status: 'Approved' },
+    { id: 'CAR-93', hazard: 'Server Sparking HQ', action: 'Annual thermal scan audit of grid breakers', owner: 'Amara Okonkwo', status: 'Verified' }
+  ]);
+
+  // Compliance calendar scheduled active lines
+  const safetyCalendar = [
+    { event: 'Q2 Station Emergency Fire Drill', date: '2026-06-18', category: 'Exercise' },
+    { event: 'Group HSE Policy Compliance Audit', date: '2026-06-25', category: 'Review' },
+    { event: 'High-Voltage Safety Gear Calibration', date: '2026-07-05', category: 'Testing' }
+  ];
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleCreateIncident = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!incTitle.trim() || !location.trim()) return;
+    if (!incTitle.trim() || !locInput.trim()) return;
 
-    addHseIncident({
-      title: incTitle,
-      type: incType,
-      riskLevel,
-      location,
-      correctiveActionOwner: owner,
-      closeOutDate: closeDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      description: desc
-    });
+    const newId = `HSE-${Math.floor(705 + Math.random() * 90)}`;
+    const newItem: IncidentItem = {
+      id: newId,
+      date: incDate,
+      location: locInput,
+      type: incTitle,
+      severity,
+      status: 'Open',
+      actionsTaken: actionsInput || 'None recorded yet.',
+      dateClosed: 'Pending Review'
+    };
 
-    if (riskLevel === 'Critical') {
+    setIncidents(prev => [newItem, ...prev]);
+
+    if (severity === 'Critical') {
       setEscalationTriggered(true);
     } else {
+      triggerToast(`Safety incident ${newId} logged successfully as ${severity} severity.`);
       setFormOpen(false);
-      resetForm();
+      resetFields();
     }
   };
 
-  const resetForm = () => {
+  const resetFields = () => {
     setIncTitle('');
-    setIncType('Near Miss');
-    setRiskLevel('Medium');
-    setLocation('');
-    setCloseDate('');
-    setDesc('');
+    setLocInput('');
+    setActionsInput('');
+    setSeverity('Medium');
   };
 
-  const handleEscalationClose = () => {
-    setEscalationTriggered(false);
-    setFormOpen(false);
-    resetForm();
+  const handleToggleAudit = (id: string) => {
+    setAuditChecks(prev => prev.map(c => c.id === id ? { ...c, checked: !c.checked } : c));
+    triggerToast("Audit compliance checkbox updated.");
   };
 
-  const closedPercent = Math.round(
-    (hseIncidents.filter(i => i.status === 'Closed').length / hseIncidents.length) * 100
-  );
+  const updateCARStatus = (id: string, next: string) => {
+    setCorrectiveActions(prev => prev.map(a => a.id === id ? { ...a, status: next } : a));
+    triggerToast(`Corrective action ${id} state updated to ${next}.`);
+  };
+
+  const resolvedCount = incidents.filter(i => i.status === 'Resolved').length;
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Sub titles layout */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-xl">
+      {/* Toast */}
+      {toastMessage && (
+        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Title block */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-201 p-6 rounded-2xl shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Safety & Compliance Incident registers</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time HSE case tracking, risk level breakdown matrices, and automatic escalation channels. Under statutory policy rules, listing any 'Critical' risk sparks automated alerts directly to executive directors.
+          <span className="text-[10px] bg-rose-100 text-rose-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            ClickUp Space: HSE-COMPLIANCE
+          </span>
+          <h2 className="text-xl font-black text-slate-900 mt-2">7. HSE Monitoring Dashboard</h2>
+          <p className="text-xs text-slate-505 mt-1 font-semibold">
+            Configured workspace tracking environmental hazards, incident investigation logs, mitigation frameworks, and critical C-suite alert escalations.
           </p>
         </div>
 
-        <Button variant="danger" size="sm" className="gap-1.5 font-bold shrink-0 cursor-pointer" onClick={() => setFormOpen(true)}>
-          <Flame className="h-4.5 w-4.5" /> File Incident Report
+        <Button variant="danger" size="sm" className="gap-1.5 font-bold" onClick={() => setFormOpen(true)}>
+          <Flame className="h-4.5 w-4.5 text-white" /> Report New Hazard
         </Button>
       </div>
 
-      {/* HSE Telemetry grids */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          icon={ShieldAlert}
-          value={hseIncidents.length}
-          label="Total Logged Incidents"
-          description="In last 30 calendar days"
-          variant="indigo"
-        />
-        <StatCard
-          icon={Activity}
-          value={hseIncidents.filter(i => i.status !== 'Closed').length}
-          label="Open Corrective Actions"
-          description="Enforced containment en-route"
-          variant="rose"
-        />
-        <StatCard
-          icon={CheckCircle2}
-          value={`${closedPercent}%`}
-          label="Action Closure Rate"
-          description="Avg response time 4.2 hours"
-          variant="emerald"
-        />
-        <StatCard
-          icon={AlertTriangle}
-          value={hseIncidents.filter(i => i.riskLevel === 'Critical').length}
-          label="Critical Severity Breaches"
-          description="Require Director led root audits"
-          variant="rose"
-        />
+      {/* 5 Requested Dashboard Widgets */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-bold text-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Total Incidents</p>
+          <h3 className="text-2xl font-black text-slate-900 mt-1">{incidents.length} File cases</h3>
+          <p className="text-[10px] text-slate-500 mt-1 font-semibold">Logged in current Q2 frame</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-semibold text-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Resolved Incidents</p>
+          <h3 className="text-2xl font-black text-emerald-700 mt-1">{resolvedCount} Cases</h3>
+          <p className="text-[10px] text-emerald-600 font-bold mt-1">✓ Complete sign-offs verified</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-semibold text-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Days Since Last Incident</p>
+          <h3 className="text-2xl font-black text-purple-650 mt-1">42 Days</h3>
+          <p className="text-[10px] text-purple-500 font-bold mt-1">Group records achievement</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-bold text-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Pending Audits</p>
+          <h3 className="text-2xl font-black text-amber-600 mt-1">2 Audits</h3>
+          <p className="text-[10px] text-slate-550 mt-1">Awaiting compliance HODs</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-semibold text-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Compliance Score</p>
+          <h3 className="text-2xl font-black text-emerald-600 mt-1">96% Done</h3>
+          <p className="text-[10px] text-slate-500 mt-1">Passing statutory benchmarks</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main Layout Divided */}
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
         
-        {/* Risk Matrix board (1/3) */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Safety Hazard Risk Grid Matrix</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-xs text-slate-505 leading-relaxed font-semibold">
-              Calculates priority severity against probability rating parameters (S-Seve, L-Like).
-            </p>
-
-            {/* Matrix Board */}
-            <div className="grid grid-cols-5 h-44 gap-1.5 text-[10px] font-bold text-center">
-              {/* L5 down to L1 rows */}
-              <div className="bg-emerald-500/10 text-emerald-700 p-2.5 rounded flex items-center justify-center">Low (L-1)</div>
-              <div className="bg-emerald-500/20 text-emerald-700 p-2.5 rounded flex items-center justify-center">Low (L-2)</div>
-              <div className="bg-amber-500/20 text-amber-700 p-2.5 rounded flex items-center justify-center">Med (L-3)</div>
-              <div className="bg-rose-500/20 text-rose-700 p-2.5 rounded flex items-center justify-center">High (L-4)</div>
-              <div className="bg-red-600 text-white p-2.5 rounded flex items-center justify-center animate-pulse">Critical (L-5)</div>
-
-              <div className="bg-emerald-500/10 text-emerald-700 p-2 rounded flex items-center justify-center col-span-3">Standard Safety</div>
-              <div className="bg-rose-500/10 text-rose-700 p-2 rounded flex items-center justify-center col-span-2">Warning Path</div>
-            </div>
-
-            <div className="flex justify-between text-[10px] text-slate-400 font-semibold border-t border-slate-100 pt-3">
-              <span>S1 (Insignificant)</span>
-              <span>→</span>
-              <span>S5 (Catastrophic)</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Detailed Table (2/3) */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Operations Hazard Register Log</CardTitle>
-          </CardHeader>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  <th className="p-4 font-bold">Ref Code</th>
-                  <th className="p-4">Incident Briefing</th>
-                  <th className="p-4">Classification</th>
-                  <th className="p-4 font-bold">Severity</th>
-                  <th className="p-4">Site Location</th>
-                  <th className="p-4">Action Owner</th>
-                  <th className="p-4 text-right">Close Target</th>
-                  <th className="p-4 text-center">Case Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {hseIncidents.map((inc) => (
-                  <tr key={inc.id} className="hover:bg-slate-50/50 transition">
-                    <td className="p-4 font-bold text-slate-900">{inc.id}</td>
-                    <td className="p-4 max-w-xs break-words" title={inc.description}>
-                      <span className="font-bold text-slate-800 block text-xs">{inc.title}</span>
-                      <p className="text-[10px] text-slate-400 leading-relaxed mt-0.5">{inc.description}</p>
-                    </td>
-                    <td className="p-4 text-slate-655 font-semibold">{inc.type}</td>
-                    <td className="p-4">
-                      <Badge variant={inc.riskLevel === 'Critical' ? 'red' : inc.riskLevel === 'High' ? 'orange' : 'green'}>
-                        {inc.riskLevel}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-slate-600 font-semibold">{inc.location}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3 text-slate-450" />
-                        <span className="font-semibold text-slate-700">{inc.correctiveActionOwner}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-right text-slate-550 font-bold">{inc.closeOutDate}</td>
-                    <td className="p-4 text-center">
-                      <Badge variant={getStatusVariant(inc.status)}>{inc.status}</Badge>
-                    </td>
+        {/* LEFT COLUMN: Incidents register table (8/12) */}
+        <div className="lg:col-span-8 space-y-6">
+          <Card className="bg-white border border-slate-200 overflow-hidden">
+            <CardHeader className="border-b border-slate-100 p-4 bg-slate-50 flex items-center justify-between flex-row">
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-400">Incident Registry Logs</CardTitle>
+              <Badge variant="red">SLA Ticking</Badge>
+            </CardHeader>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-bold border-collapse select-none">
+                <thead>
+                  <tr className="bg-slate-100 text-slate-400 uppercase tracking-widest text-[9px] border-b border-slate-200/80">
+                    <th className="p-3">Ref ID</th>
+                    <th className="p-3">Incident Brief Title</th>
+                    <th className="p-3">Classification Date</th>
+                    <th className="p-3">Site Location</th>
+                    <th className="p-3 text-center">Severity</th>
+                    <th className="p-3">Actions Taken</th>
+                    <th className="p-3">Date Closed</th>
+                    <th className="p-3 text-center">Status</th>
                   </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-705">
+                  {incidents.map(inc => (
+                    <tr key={inc.id} className="hover:bg-slate-50/50 transition">
+                      <td className="p-3 text-slate-400 font-bold">{inc.id}</td>
+                      <td className="p-3">
+                        <span className="font-extrabold text-slate-900 block leading-tight">{inc.type}</span>
+                      </td>
+                      <td className="p-3 text-slate-500">{inc.date}</td>
+                      <td className="p-3 text-slate-500 font-semibold">{inc.location}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide inline-block ${
+                          inc.severity === 'Critical' ? 'bg-rose-100 text-rose-800 animate-pulse' :
+                          inc.severity === 'High' ? 'bg-orange-100 text-orange-850' :
+                          inc.severity === 'Medium' ? 'bg-amber-100 text-amber-800' :
+                          'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {inc.severity}
+                        </span>
+                      </td>
+                      <td className="p-3 text-slate-400 font-semibold max-w-xs truncate" title={inc.actionsTaken}>
+                        {inc.actionsTaken}
+                      </td>
+                      <td className="p-3 font-semibold text-slate-500">{inc.dateClosed}</td>
+                      <td className="p-3 text-center">
+                        <Badge variant={inc.status === 'Resolved' ? 'green' : inc.status === 'Investigating' ? 'amber' : 'red'}>
+                          {inc.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+          
+          {/* Safety Corrective Action Tracker CARs */}
+          <Card className="bg-white border border-slate-200">
+            <CardHeader className="border-b border-slate-105">
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Corrective Action Tracker (CARs)</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-3.5">
+                {correctiveActions.map(act => (
+                  <div key={act.id} className="p-3 border border-slate-150 rounded-xl bg-slate-55 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-semibold leading-normal">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-wide font-extrabold text-[#7C3AED] block">{act.id} Action</span>
+                      <strong className="text-slate-850 font-extrabold">{act.action}</strong>
+                      <p className="text-[10px] text-slate-500 mt-1">Hazard: {act.hazard} | Assignee: {act.owner}</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-indigo-750 font-extrabold mr-2">Status: {act.status}</span>
+                      {act.status !== 'Verified' && (
+                        <button
+                          onClick={() => updateCARStatus(act.id, 'Verified')}
+                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase rounded"
+                        >
+                          Verify Closeout
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+        </div>
+
+        {/* RIGHT COLUMN (4/12) */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          {/* Audit interactive checklist */}
+          <Card className="bg-white border border-slate-200">
+            <CardHeader className="border-b border-slate-100 p-4">
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-400 tracking-wider flex items-center gap-1.5">
+                <CheckSquare2 className="h-4.5 w-4.5 text-purple-650" />
+                HSE Audit checklist
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                {auditChecks.map(check => (
+                  <label key={check.id} className="flex items-start gap-2.5 cursor-pointer select-none border-b border-slate-50 pb-2">
+                    <input
+                      type="checkbox"
+                      checked={check.checked}
+                      onChange={() => handleToggleAudit(check.id)}
+                      className="mt-0.5 accent-purple-600 h-4 w-4"
+                    />
+                    <span className={`text-xs font-semibold leading-normal ${check.checked ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                      {check.item}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Severity Matrix mapping */}
+          <Card className="bg-white border border-slate-201 p-5 space-y-4">
+            <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">HSE Danger Rating matrix</h4>
+            <div className="bg-slate-50 border border-slate-200 p-1 rounded-xl text-[10px] font-bold text-center">
+              <div className="grid grid-cols-5 gap-1">
+                <div className="bg-rose-100 text-rose-800 p-2 rounded">Low</div>
+                <div className="bg-amber-100 text-amber-800 p-2 rounded">Med</div>
+                <div className="bg-orange-100 text-orange-800 p-2 rounded col-span-2">High</div>
+                <div className="bg-red-600 text-white p-2 rounded animate-pulse">Critical</div>
+              </div>
+              <p className="text-[9px] text-slate-400 font-semibold mt-2">Likelihood (L1 - L5) vs Consequences (S1 - S5) matrix mapping</p>
+            </div>
+          </Card>
+
+          {/* Safety Calendar */}
+          <Card className="bg-white border border-slate-200">
+            <CardHeader className="border-b border-indigo-50">
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-405 tracking-wider">Compliance Calendar</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3 font-semibold text-xs text-slate-700">
+              {safetyCalendar.map((cal, idx) => (
+                <div key={idx} className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-150">
+                  <div>
+                    <strong className="text-slate-800 font-extrabold">{cal.event}</strong>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Scheduled: {cal.date}</p>
+                  </div>
+                  <Badge variant="indigo">{cal.category}</Badge>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+        </div>
 
       </div>
 
-      {/* Incident Input drawer Modal */}
-      <Modal
-        isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        title="File Operations Hazard Incident Report"
-      >
-        <form onSubmit={handleSubmitIncident} className="space-y-4 text-xs font-semibold select-none">
+      {/* NEW Hazard report modal */}
+      <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title="Simulate Statutory Incident Filing Form">
+        <form onSubmit={handleCreateIncident} className="space-y-4 font-bold text-xs shadow-xs">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Incident Brief title</label>
+            <label className="block text-slate-600 mb-1 uppercase text-[10px]">Breach / Incident Brief Description</label>
             <input
               type="text"
               required
-              placeholder="e.g. Minor water leak near electric generator chamber"
+              placeholder="e.g. Scaffolding Base support structural decay"
               value={incTitle}
               onChange={(e) => setIncTitle(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
+              className="w-full p-2 border border-slate-201 rounded-lg focus:ring-1 focus:ring-indigo-600 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Breach Category</label>
-              <select
-                value={incType}
-                onChange={(e) => setIncType(e.target.value as any)}
-                className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
-              >
-                <option value="Near Miss">Near Miss</option>
-                <option value="Lost Time Injury">Lost Time Injury</option>
-                <option value="Environmental">Environmental</option>
-                <option value="First Aid">First Aid</option>
-                <option value="Property Damage">Property Damage</option>
-              </select>
+              <label className="block text-slate-600 mb-1 uppercase text-[10px]">Date of Incident</label>
+              <input
+                type="date"
+                required
+                value={incDate}
+                onChange={(e) => setIncDate(e.target.value)}
+                className="w-full p-2 border border-slate-201 rounded-lg focus:outline-none"
+              />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Hazard Severity Rating</label>
+              <label className="block text-slate-650 mb-1 uppercase text-[10px]">Hazard Severity Rating</label>
               <select
-                value={riskLevel}
-                onChange={(e) => setRiskLevel(e.target.value as any)}
-                className="w-full rounded-lg border border-slate-250 p-2 text-xs focus:outline-none"
+                value={severity}
+                onChange={(e) => setSeverity(e.target.value as any)}
+                className="w-full p-2 border border-slate-205 rounded-lg focus:outline-none"
               >
                 <option value="Low">Low Risk</option>
                 <option value="Medium">Medium Risk</option>
                 <option value="High">High Severity Risk</option>
-                <option value="Critical">Critical Breach (Automated CEO Warning)</option>
+                <option value="Critical">Critical Breach (Automated Executive Alert)</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Exact Site Location</label>
+            <label className="block text-slate-600 mb-1 uppercase text-[10px]">Exact Site Location Coordinates</label>
             <input
               type="text"
               required
-              placeholder="e.g. Lekki Deep Sea Dock Zone B"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
+              placeholder="e.g. VGC Transmission Substation Frame"
+              value={locInput}
+              onChange={(e) => setLocInput(e.target.value)}
+              className="w-full p-2 border border-slate-201 rounded-lg focus:outline-none"
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Corrective Action Assignee</label>
-              <select
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
-              >
-                <option value="Maryam Bello">Maryam Bello (HSE Lead)</option>
-                <option value="Olumide Awosika">Olumide Awosika (Ops Lead)</option>
-                <option value="Tunde Balogun">Tunde Balogun (Procure Lead)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Close Action Target Date</label>
-              <input
-                type="date"
-                required
-                value={closeDate}
-                onChange={(e) => setCloseDate(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
-              />
-            </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Chronological incident description</label>
+            <label className="block text-slate-600 mb-1 uppercase text-[10px]">Emergency Actions Taken Containment</label>
             <textarea
-              required
               rows={3}
-              placeholder="Provide clear technical, environmental or mechanical description..."
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 p-2 text-xs focus:outline-none"
+              placeholder="Detail safety barricades, chemical containments, or medical deployments..."
+              value={actionsInput}
+              onChange={(e) => setActionsInput(e.target.value)}
+              className="w-full p-2 border border-slate-250 rounded-lg focus:outline-none resize-none"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-50">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
             <Button variant="outline" size="sm" type="button" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
             <Button variant="danger" size="sm" type="submit">
-              Log Report
+              Submit Incident Docket
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* AUTOMATED CRITICAL ESCALATION NOTICE MODAL */}
-      <Modal
-        isOpen={escalationTriggered}
-        onClose={handleEscalationClose}
-        title="⚠️ CRITICAL SEVERITY ESCALATION NOTICE"
-        footer={(
-          <Button variant="danger" size="sm" onClick={handleEscalationClose}>
-            Acknowledge Escalation Route
-          </Button>
-        )}
-      >
-        <div className="space-y-4 p-1 text-xs">
-          <div className="flex items-start gap-3 bg-rose-50 text-rose-800 p-4 border border-rose-200 rounded-lg">
-            <ShieldAlert className="h-6 w-6 text-rose-600 shrink-0 mt-0.5" />
-            <div className="font-semibold leading-relaxed">
-              <strong>MANDATORY STATUTORY SAFETY OVERRIDE DETECTED!</strong>
-              <p className="mt-1 font-medium text-[11px]">Because the risk rating was enqueued as <strong>CRITICAL</strong>, the automation engine has triggered emergency safety SOP protocol protocols!</p>
+      {/* CRITICAL SAFETY OVERRIDE ESCALATION */}
+      <Modal isOpen={escalationTriggered} onClose={() => { setEscalationTriggered(false); setFormOpen(false); resetFields(); }} title="⚠️ AUTOMATED REGULATORY SAFETY ALERT PROTOCOLS">
+        <div className="space-y-4 text-xs font-bold leading-normal text-slate-700 p-1">
+          <div className="flex gap-2.5 bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-800">
+            <AlertTriangle className="h-6 w-6 text-rose-600 shrink-0 mt-0.5" />
+            <div>
+              <strong>AUTOMATIC EXECUTIVE ESCALATION DISPATCHED!</strong>
+              <p className="text-[10px] font-semibold text-rose-700 mt-1 max-w-sm">
+                severity rating of CRITICAL triggers automated ClickUp push alerts directly communicating with Executive Director Daniel Eze.
+              </p>
             </div>
           </div>
-
-          <div className="space-y-2.5">
-            <h4 className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Real-Time Actions Executed:</h4>
-            <ul className="space-y-2 font-semibold">
-              <li className="flex items-center gap-2 bg-slate-50 p-2 rounded">
-                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0" />
-                Dispatched SMS Alert to HSE Lead Maryam Bello.
-              </li>
-              <li className="flex items-center gap-2 bg-slate-50 p-2 rounded">
-                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0" />
-                Interdepartmental Action Task logged on CEO Daniel Eze dashboard.
-              </li>
-              <li className="flex items-center gap-2 bg-slate-50 p-2 rounded">
-                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0" />
-                Locked field coordinates in central Lekki port telemetry workspace.
-              </li>
+          <div className="space-y-2">
+            <h4 className="text-[10px] text-slate-400 uppercase font-black uppercase">Triggered Runbook Tasks:</h4>
+            <ul className="space-y-1.5 text-[10px]">
+              <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-red-500 rounded-full" /> Emergency HSE containment dispatch task logged.</li>
+              <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-red-500 rounded-full" /> SMS telemetry packet routed to HSE Lead Maryam Bello.</li>
             </ul>
+          </div>
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => { setEscalationTriggered(false); setFormOpen(false); resetFields(); }}>
+              Dismiss Overdue Notice
+            </Button>
           </div>
         </div>
       </Modal>
@@ -361,4 +491,5 @@ export const HSE: React.FC = () => {
     </div>
   );
 };
+
 export default HSE;

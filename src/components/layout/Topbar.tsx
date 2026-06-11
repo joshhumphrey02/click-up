@@ -27,33 +27,31 @@ export const Topbar: React.FC<TopbarProps> = ({ id }) => {
   const getPageTitle = () => {
     const path = location.pathname;
     switch (path) {
-      case '/': return 'Digital Operations Overview';
-      case '/executive-dashboard': return 'Executive Command Dashboard';
-      case '/manager-dashboard': return 'Department Head & Manager View';
-      case '/staff-workspace': return 'Staff Operational Workspace';
-      case '/hr-operations': return 'HR Operations Center';
-      case '/procurement': return 'Procurement & Purchasing Workflow';
-      case '/projects': return 'Project Architecture & Execution';
+      case '/': return 'Proposal Overview';
+      case '/architecture': return 'Workspace Architecture';
+      case '/executive-dashboard': return 'Dashboards & Reporting';
+      case '/hr-operations': return 'HR Operations';
+      case '/procurement': return 'Procurement Workflow';
+      case '/projects': return 'Project Execution Tracker';
       case '/vendors': return 'Vendor Management Portal';
-      case '/hse': return 'Health, Safety & Environment Monitoring';
-      case '/approvals': return 'Board & Executive Approvals Queue';
-      case '/meetings': return 'Virtual Strategic Meeting Hub';
-      case '/communications': return 'Cross-Departmental Communications';
-      case '/forms-sops': return 'SOPs & Form Digitization Registry';
-      case '/automations': return 'Enterprise Automations Center';
-      case '/integrations': return 'Connected Ecosystem & Integrations';
-      case '/access-control': return 'Permissions & Role-Based Access Control';
-      case '/roadmap': return 'Implementation Roadmap';
+      case '/hse': return 'HSE Monitoring';
+      case '/approvals': return 'Executive Approval Centre';
+      case '/meetings': return 'Virtual Meeting Management';
+      case '/communications': return 'Interdepartmental Communication';
+      case '/forms-sops': return 'SOP Digitization';
+      case '/automations': return 'Workflow Automations';
+      case '/training': return 'User Training & Change Management';
+      case '/roadmap': return 'Implementation Timeline';
       default: return 'Command Center';
     }
   };
 
   const roles: UserRole[] = [
-    'CEO / Executive',
-    'Department Head',
-    'Manager',
-    'Staff',
-    'Vendor / External Guest'
+    'Executive Management',
+    'Department Manager',
+    'End User',
+    'Vendor Guest',
+    'System Administrator'
   ];
 
   const handleRoleChange = (role: UserRole) => {

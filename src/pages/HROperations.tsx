@@ -6,7 +6,21 @@ import {
   TrendingUp,
   GraduationCap,
   Briefcase,
-  AlertCircle
+  AlertCircle,
+  FileCheck2,
+  Calendar,
+  Clock,
+  Send,
+  UserCheck2,
+  CheckSquare,
+  ArrowRight,
+  ClipboardList,
+  Fingerprint,
+  RotateCcw,
+  Sparkles,
+  CheckCircle2,
+  Lock,
+  ChevronRight
 } from 'lucide-react';
 import { useCommandCenter } from '../context/CommandCenterContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
@@ -16,211 +30,713 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 
 export const HROperations: React.FC = () => {
-  const { onboardingTasks, addOnboardingTask } = useCommandCenter();
+  const { onboardingTasks, addOnboardingTask, currentRole } = useCommandCenter();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [candidateName, setCandidateName] = useState('');
-  const [position, setPosition] = useState('');
-  const [department, setDepartment] = useState('Projects');
-  const [contractType, setContractType] = useState<'Full-time' | 'Contract' | 'Consultant'>('Full-time');
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('High');
+  // Selected Active Tab in HR Space
+  const [activeTab, setActiveTab] = useState<'recruitment' | 'onboarding' | 'records' | 'leaves' | 'performance' | 'training' | 'exits'>('recruitment');
+  
+  // Modals for Form Previews
+  const [activeFormModal, setActiveFormModal] = useState<'recruitment' | 'leave' | 'performance' | 'exit' | null>(null);
 
-  // Submit new onboarding candidate
-  const handleSubmitOnboarding = (e: React.FormEvent) => {
+  // For adding custom candidates in Kanban
+  const [addCandModal, setAddCandModal] = useState(false);
+  const [candName, setCandName] = useState('');
+  const [candPos, setCandPos] = useState('');
+  const [candDept, setCandDept] = useState('Marketing');
+  const [candType, setCandType] = useState<'Full-time' | 'Contract' | 'Consultant'>('Full-time');
+
+  // Interactive Onboarding Task selection (automap logic showcase)
+  const [selectedOnboardCand, setSelectedOnboardCand] = useState<string>('EMP-001');
+
+  // Trigger local leaves approve/reject status hook
+  const [leaves, setLeaves] = useState([
+    { id: 'L-1', name: 'Amadi Kalu', dept: 'Operations', days: 5, start: '2026-06-15', end: '2026-06-20', type: 'Annual Leave', status: 'Pending' },
+    { id: 'L-2', name: 'Funmi Alao', dept: 'HR', days: 2, start: '2026-06-25', end: '2026-06-27', type: 'Casual Leave', status: 'Approved' },
+    { id: 'L-3', name: 'Musa Bello', dept: 'Procurement', days: 3, start: '2026-07-02', end: '2026-07-05', type: 'Sick Leave', status: 'Pending' }
+  ]);
+
+  const updateLeaveStatus = (id: string, newStatus: string) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
+  };
+
+  const handleCreateRecruitmentRequest = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!candidateName.trim() || !position.trim()) return;
+    if (!candName.trim() || !candPos.trim()) return;
 
     addOnboardingTask({
-      name: candidateName,
-      position,
-      department,
-      status: 'New Request',
+      name: candName,
+      position: candPos,
+      department: candDept,
+      status: 'Request Submitted',
       startDate: new Date().toISOString().split('T')[0],
-      contractType,
-      employeeId: 'EMP-PEND',
-      probationEnd: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      contractType: candType,
+      employeeId: `EMP-${Math.floor(100 + Math.random() * 900)}`,
+      probationEnd: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       owner: 'Ada Okafor',
-      priority,
+      priority: 'High',
       approvalStatus: 'Pending'
     });
 
-    // Reset fields
-    setCandidateName('');
-    setPosition('');
-    setModalOpen(false);
+    setCandName('');
+    setCandPos('');
+    setAddCandModal(false);
   };
 
-  const kanbanStages = [
-    { key: 'New Request', label: 'New Request', border: 'border-t-slate-300' },
-    { key: 'Under Review', label: 'Under Review', border: 'border-t-sky-400' },
-    { key: 'Interview Stage', label: 'Interview Stage', border: 'border-t-amber-400' },
-    { key: 'Offer Sent', label: 'Offer Sent', border: 'border-t-indigo-400' },
-    { key: 'Onboarding', label: 'Onboarding', border: 'border-t-fuchsia-400' },
-    { key: 'Completed', label: 'Completed', border: 'border-t-emerald-400' }
+  const hrSpacesTabs = [
+    { key: 'recruitment', label: 'Recruitment board' },
+    { key: 'onboarding', label: 'Onboarding runbook' },
+    { key: 'records', label: 'Employee Records' },
+    { key: 'leaves', label: 'Leave Requests' },
+    { key: 'performance', label: 'Performance Reviews' },
+    { key: 'training', label: 'Training & Skills' },
+    { key: 'exits', label: 'Staff Offboarding' }
+  ] as const;
+
+  const recruitmentStatuses = [
+    'Request Submitted',
+    'Under Review',
+    'Shortlisting',
+    'Interview Scheduled',
+    'Offer Approved',
+    'Hired',
+    'Onboarding Started'
+  ] as const;
+
+  // Static HR Data representation
+  const employeeRecords = [
+    { id: 'EMP-110', name: 'Emeka Obi', dept: 'Engineering', pos: 'Mechanical Engineer', email: 'e.obi@nextgen.com', contract: 'Full-time', status: 'Active' },
+    { id: 'EMP-111', name: 'Fatima Umar', dept: 'Procurement', pos: 'Contract Negotiator', email: 'f.umar@nextgen.com', contract: 'Full-time', status: 'Active' },
+    { id: 'EMP-112', name: 'Chioma Nwosu', dept: 'HSE', pos: 'Safety Inspector', email: 'c.nwosu@nextgen.com', contract: 'Contract', status: 'Active' },
+    { id: 'EMP-113', name: 'Kelechi Egwu', dept: 'Operations', pos: 'Site Supervisor', email: 'k.egwu@nextgen.com', contract: 'Consultant', status: 'On Probation' },
+    { id: 'EMP-114', name: 'Sade Adesina', dept: 'Finance', pos: 'Senior Auditor', email: 's.adesina@nextgen.com', contract: 'Full-time', status: 'Active' }
+  ];
+
+  const exitProcesses = [
+    { id: 'EX-9', name: 'Lanre Davies', pos: 'Operations Manager', exitDate: '2026-06-30', dept: 'Projects', auditStatus: 'Pending Sign-off', clearance: '70% Complete' },
+    { id: 'EX-10', name: 'Zainab Yusuf', pos: 'HR Assistant', exitDate: '2026-07-15', dept: 'HR & Admin', auditStatus: 'Cleared', clearance: '100% Complete' }
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Dynamic Sub title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-xl">
+      {/* Space Sub header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">HR Operations & Onboarding Pipeline</h2>
-          <p className="text-xs text-slate-500 mt-1">Centralizing employee lifecycle workflows, recruitment requisitions, contract indicators, and onboarding checklists.</p>
+          <span className="text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            ClickUp Space: HR-OPS
+          </span>
+          <h2 className="text-xl font-black text-slate-900 mt-2">3. HR Operations System</h2>
+          <p className="text-xs text-slate-505 mt-1 font-semibold">
+            Configured Space for tracking talent acquisition, onboarding automations, records curation, and employee state changes.
+          </p>
         </div>
 
-        <Button variant="primary" size="sm" className="gap-1.5 font-bold shrink-0 cursor-pointer" onClick={() => setModalOpen(true)}>
-          <PlusCircle className="h-4.5 w-4.5" /> Log Onboarding Request
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button variant="outline" size="sm" className="font-bold border-[#7C3AED]/20 text-[#7C3AED] hover:bg-purple-50" onClick={() => setActiveFormModal('recruitment')}>
+            Preview Form Installs
+          </Button>
+          <Button variant="primary" size="sm" className="gap-1.5 font-bold cursor-pointer" onClick={() => setAddCandModal(true)}>
+            <PlusCircle className="h-4.5 w-4.5" /> Log Recruitment Request
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Widgets Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          icon={Users}
-          value="142 Staff"
-          label="Total Group Headcount"
-          description="Across 5 active departments"
-          variant="indigo"
-        />
-        <StatCard
-          icon={Briefcase}
-          value="6 Vacancies"
-          label="Open Job Openings"
-          description="Active recruiting on LinkedIn/Job boards"
-          variant="blue"
-        />
-        <StatCard
-          icon={GraduationCap}
-          value={onboardingTasks.filter(o => o.status !== 'Completed').length}
-          label="Candidates In-Onboarding"
-          description="Navigating compliance & checklist schedules"
-          variant="fuchsia"
-        />
-        <StatCard
-          icon={AlertCircle}
-          value="1 Required"
-          label="Probation Reviews Pending"
-          description="Requiring HOD evaluation sign-off"
-          variant="amber"
-        />
+      {/* HR Dashboard KPI Widgets */}
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Pipeline Space</p>
+          <h3 className="text-xl font-bold text-slate-900 mt-1">7 Stages</h3>
+          <p className="text-[10px] text-slate-500 mt-1 font-semibold">Active candidate funnel</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Leave Status</p>
+          <h3 className="text-xl font-bold text-slate-900 mt-1">{leaves.filter(l => l.status === 'Pending').length} Pending</h3>
+          <p className="text-[10px] text-amber-600 mt-1 font-bold">Needs HOD review</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Total Headcount</p>
+          <h3 className="text-xl font-bold text-slate-900 mt-1">142 Staff</h3>
+          <p className="text-[10px] text-slate-500 mt-1 font-semibold">5 Operational departments</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Open Positions</p>
+          <h3 className="text-xl font-bold text-[#7C3AED] mt-1">6 Active</h3>
+          <p className="text-[10px] text-slate-500 mt-1 font-semibold">Recruiting pipelines</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-semibold">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Training Status</p>
+          <h3 className="text-xl font-bold text-emerald-600 mt-1">94% Done</h3>
+          <p className="text-[10px] text-slate-500 mt-1">Compliance training progress</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs font-semibold">
+          <p className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Exits Processed</p>
+          <h3 className="text-xl font-bold text-slate-900 mt-1">2 Active</h3>
+          <p className="text-[10px] text-rose-500 mt-1 font-bold">Clearance pending</p>
+        </div>
       </div>
 
-      {/* Kanban Board Container */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Onboarding Stages Unified Kanban</h3>
+      {/* Embedded ClickUp View Navigation Bar */}
+      <div className="flex border-b border-slate-250 bg-slate-100 rounded-lg p-1.5 gap-1 select-none">
+        {hrSpacesTabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition duration-150 cursor-pointer ${
+              activeTab === tab.key 
+                ? 'bg-white text-slate-900 shadow-xs border border-slate-200' 
+                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Main Tab Area Content */}
+      <div className="transition-all duration-200">
         
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin select-none">
-          {kanbanStages.map((stage) => {
-            const stageTasks = onboardingTasks.filter(t => t.status === stage.key);
-            return (
-              <div
-                key={stage.key}
-                className={`flex-1 min-w-[250px] max-w-[320px] bg-slate-50 border border-slate-200/80 rounded-xl p-4 flex flex-col h-[520px] border-t-4 ${stage.border}`}
-              >
-                {/* Column Title Header */}
-                <div className="flex justify-between items-center mb-3 text-xs font-bold text-slate-805">
-                  <span>{stage.label}</span>
-                  <span className="bg-slate-200/60 text-slate-600 px-2 py-0.5 rounded-full">{stageTasks.length}</span>
-                </div>
+        {/* RECRUITMENT TAB */}
+        {activeTab === 'recruitment' && (
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-slate-850 uppercase tracking-tight">Active Recruitment Kanban Board</h3>
+                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Statuses correspond directly to ClickUp custom states mapping candidate selection benchmarks.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="xs" onClick={() => setActiveFormModal('recruitment')}>
+                  Test Intake Form
+                </Button>
+              </div>
+            </div>
 
-                {/* Candidate space stack */}
-                <div className="space-y-3 flex-grow overflow-y-auto pr-1 scrollbar-thin">
-                  {stageTasks.length === 0 ? (
-                    <div className="border border-dashed border-slate-200 rounded-lg p-6 text-center text-[10px] text-slate-400 italic">
-                      Empty Lane
+            <div className="flex gap-4 overflow-x-auto pb-6 select-none scrollbar-thin">
+              {recruitmentStatuses.map(status => {
+                const candidates = onboardingTasks.filter(t => t.status === status || (status === 'Request Submitted' && t.status === 'New Request'));
+                return (
+                  <div key={status} className="flex-1 min-w-[245px] max-w-[300px] bg-slate-50 border border-slate-205 rounded-xl p-3 flex flex-col h-[525px]">
+                    <div className="flex items-center justify-between font-extrabold text-[11px] text-slate-800 pb-2 border-b border-slate-200/80 mb-3 uppercase tracking-wider">
+                      <h3>{status}</h3>
+                      <span className="bg-slate-205 text-slate-600 font-bold px-2 py-0.5 rounded-full">{candidates.length}</span>
                     </div>
-                  ) : (
-                    stageTasks.map((cand) => (
-                      <Card key={cand.id} className="border border-slate-200 hover:border-slate-350 shadow-xs">
-                        <CardContent className="p-4 space-y-3">
-                          <div>
-                            <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
-                              <span>{cand.employeeId}</span>
-                              <Badge variant={cand.priority === 'High' ? 'red' : 'yellow'}>{cand.priority}</Badge>
-                            </div>
-                            <h4 className="text-xs font-bold text-slate-900 mt-1 leading-normal">{cand.name}</h4>
-                            <p className="text-[10px] text-indigo-700 font-semibold">{cand.position}</p>
-                          </div>
 
-                          <div className="space-y-1.5 text-[10px] text-slate-500 font-semibold uppercase leading-normal border-t border-slate-50 pt-2.5">
-                            <div className="flex justify-between">
-                              <span>Dept:</span> <span className="text-slate-700">{cand.department}</span>
+                    <div className="space-y-3 overflow-y-auto flex-grow scrollbar-thin pr-1">
+                      {candidates.length === 0 ? (
+                        <div className="border border-dashed border-slate-200 rounded-xl p-8 text-[11px] text-slate-400 text-center italic mt-4 bg-white/40">
+                          Empty Lane
+                        </div>
+                      ) : (
+                        candidates.map((cand, candIdx) => (
+                          <div key={cand.id || candIdx} className="bg-white p-3.5 rounded-xl border border-slate-200 hover:shadow-xs transition duration-150 space-y-3">
+                            <div className="flex items-center justify-between text-[10px] font-extrabold">
+                              <span className="text-slate-400">{cand.employeeId || 'REC-REQ'}</span>
+                              <Badge variant={cand.priority === 'High' ? 'red' : 'indigo'}>{cand.priority || 'Low'}</Badge>
                             </div>
-                            <div className="flex justify-between">
-                              <span>Modality:</span> <span className="text-slate-700">{cand.contractType}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Probation:</span> <span className="text-slate-700">{cand.probationEnd}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Owner:</span> <span className="text-slate-740">{cand.owner}</span>
+                            <h4 className="text-xs font-extrabold text-slate-855 mt-1 leading-snug">{cand.name}</h4>
+                            <p className="text-[10px] text-[#7C3AED] leading-none font-extrabold uppercase tracking-wider">{cand.position}</p>
+                            
+                            <div className="space-y-1.5 text-[10px] text-slate-500 font-bold uppercase leading-normal border-t border-slate-100 pt-2 bg-slate-50/50 p-2 rounded">
+                              <div className="flex justify-between">
+                                <span className="text-[9px] text-slate-400">Department:</span> <span className="text-slate-800">{cand.department}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-[9px] text-slate-400">Modality:</span> <span className="text-slate-800">{cand.contractType}</span>
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
+                        ))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ONBOARDING AUTOMATION RUNBOOK TAB */}
+        {activeTab === 'onboarding' && (
+          <div className="space-y-6">
+            
+            <div className="bg-[#7C3AED]/5 border border-[#7C3AED]/15 rounded-2xl p-6 relative overflow-hidden">
+              <div className="flex items-start gap-4 z-10 relative">
+                <div className="p-3 bg-[#7C3AED]/10 text-[#7C3AED] rounded-xl shrink-0">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-extrabold text-[#7C3AED] uppercase tracking-wider">ClickUp Core Automation: Hired Workspace Generation</h3>
+                  <p className="text-xs text-slate-650 leading-relaxed font-semibold mt-1 max-w-3xl">
+                    When a candidate’s Status is updated to <strong className="text-slate-900 border-b border-dashed border-emerald-600 pb-0.5">Hired</strong>, ClickUp automatically generates direct task items in IT, Logistics, HR, and Training checklists to secure zero-delay onboarding.
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+
+            <div className="grid lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Select Candidate Showcase */}
+              <div className="lg:col-span-4 bg-white border border-slate-200 p-5 rounded-xl space-y-4">
+                <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Hired Staff Profile</h4>
+                <div className="space-y-2">
+                  <button 
+                    onClick={() => setSelectedOnboardCand('EMP-001')}
+                    className={`w-full p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition ${selectedOnboardCand === 'EMP-001' ? 'border-purple-500 bg-purple-50 text-slate-800 font-bold' : 'border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  >
+                    <div>
+                      <p className="text-xs font-bold leading-none mb-1">Amara Okonkwo</p>
+                      <p className="text-[10px] text-slate-405 uppercase font-extrabold tracking-wider">HSE Lead Inspector</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-purple-650" />
+                  </button>
+
+                  <button 
+                    onClick={() => setSelectedOnboardCand('EMP-002')}
+                    className={`w-full p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition ${selectedOnboardCand === 'EMP-002' ? 'border-purple-500 bg-purple-50 text-slate-800 font-bold' : 'border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  >
+                    <div>
+                      <p className="text-xs font-bold leading-none mb-1">Tariq Al-Mansoor</p>
+                      <p className="text-[10px] text-slate-405 uppercase font-extrabold tracking-wider">Senior Procurement Officer</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-purple-650" />
+                  </button>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-150 rounded-lg p-3 text-[11px] text-slate-505 font-semibold">
+                  Click a candidate profile to view onboarding checklists automatically generated in respective workspace lists.
+                </div>
+              </div>
+
+              {/* Automation Subtask List Output */}
+              <div className="lg:col-span-8 space-y-4">
+                <Card className="bg-white border border-slate-200">
+                  <CardHeader className="border-b border-slate-100 pb-4">
+                    <CardTitle className="text-xs font-extrabold uppercase text-slate-705 tracking-wider flex items-center gap-2">
+                      <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600" />
+                      Generated Workspace Checklists for: {selectedOnboardCand === 'EMP-001' ? 'Amara Okonkwo' : 'Tariq Al-Mansoor'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5 space-y-3">
+                    
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="border border-slate-150 p-3.5 rounded-xl bg-slate-50/50">
+                        <strong className="text-[11px] uppercase text-indigo-750 block font-bold mb-2">💻 IT & Provisioning Checklist</strong>
+                        <div className="space-y-2 text-[11px] text-slate-700 font-semibold">
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> IT Account Setup (Email, Slack, ClickUp)</div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-amber-500" /> Device Allocation (Laptop, Charger, Token)</div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-slate-400" /> Access Keys & ID Card Processing</div>
+                        </div>
+                      </div>
+
+                      <div className="border border-slate-150 p-3.5 rounded-xl bg-slate-50/50">
+                        <strong className="text-[11px] uppercase text-[#7C3AED] block font-bold mb-2">📅 Compliance & HR Onboarding</strong>
+                        <div className="space-y-2 text-[11px] text-slate-700 font-semibold">
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> Group Orientation Scheduling</div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> HSE Compliance Training Module dispatch</div>
+                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-amber-500" /> Probation Review 90-Day Scheduling</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 mt-4 flex justify-between items-center text-[10px] text-slate-405 font-extrabold uppercase">
+                      <span>Status: Auto Trigger Active</span>
+                      <span className="text-[#7C3AED]">Linked to Form Triggers</span>
+                    </div>
+
+                  </CardContent>
+                </Card>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* EMPLOYEE RECORDS TAB */}
+        {activeTab === 'records' && (
+          <div className="bg-white border border-slate-201 rounded-xl shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest">Digital Employee Master Roll</h3>
+              <span className="text-[10px] bg-slate-200 px-2.5 py-1 rounded font-bold">{employeeRecords.length} Active Records</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-bold select-none">
+                <thead>
+                  <tr className="bg-slate-100/60 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-200">
+                    <th className="p-3.5">ID</th>
+                    <th className="p-3.5">Name</th>
+                    <th className="p-3.5">Department</th>
+                    <th className="p-3.5">Position</th>
+                    <th className="p-3.5">Email</th>
+                    <th className="p-3.5">Modality</th>
+                    <th className="p-3.5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {employeeRecords.map(rec => (
+                    <tr key={rec.id} className="hover:bg-slate-50 transition">
+                      <td className="p-3.5 text-slate-400">{rec.id}</td>
+                      <td className="p-3.5 text-slate-900 font-extrabold">{rec.name}</td>
+                      <td className="p-3.5 text-slate-900">{rec.dept}</td>
+                      <td className="p-3.5 text-indigo-700">{rec.pos}</td>
+                      <td className="p-3.5 lowercase text-slate-500 font-semibold">{rec.email}</td>
+                      <td className="p-3.5 font-semibold text-slate-600">{rec.contract}</td>
+                      <td className="p-3.5 text-right">
+                        <Badge variant={rec.status === 'Active' ? 'green' : 'amber'}>{rec.status}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* LEAVE REQUESTS TAB */}
+        {activeTab === 'leaves' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div>
+                <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-wide">Interactive Leave Intake Approvals</h3>
+                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Decisions on requests immediately notify staff and update leave logs.</p>
+              </div>
+              <Button variant="outline" size="xs" onClick={() => setActiveFormModal('leave')}>
+                Test Leave Form
+              </Button>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {leaves.map(req => (
+                <Card key={req.id} className="bg-white border border-slate-200">
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[9px] text-slate-400 uppercase font-extrabold tracking-widest">{req.id}</span>
+                        <h4 className="text-sm font-extrabold text-slate-900 mt-1">{req.name}</h4>
+                        <p className="text-[10px] text-slate-505 font-bold">{req.dept} Department</p>
+                      </div>
+                      <Badge variant={req.status === 'Approved' ? 'green' : req.status === 'Rejected' ? 'red' : 'amber'}>
+                        {req.status}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-1.5 text-[11px] text-slate-600 font-semibold bg-slate-50 p-2.5 rounded-lg border border-slate-150">
+                      <div className="flex justify-between">
+                        <span>Duration:</span> <strong className="text-slate-900">{req.days} Working Days</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Type:</span> <span className="text-slate-700">{req.type}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Span:</span> <span className="text-slate-500">{req.start} to {req.end}</span>
+                      </div>
+                    </div>
+
+                    {req.status === 'Pending' && (
+                      <div className="flex gap-2.5 pt-1">
+                        <button 
+                          onClick={() => updateLeaveStatus(req.id, 'Approved')}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] uppercase tracking-wide py-2 rounded-lg cursor-pointer transition shadow-xs"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => updateLeaveStatus(req.id, 'Rejected')}
+                          className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] uppercase tracking-wide py-2 rounded-lg cursor-pointer transition shadow-xs"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PERFORMANCE REVIEWS TAB */}
+        {activeTab === 'performance' && (
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="bg-white border border-slate-200">
+              <CardHeader className="border-b border-slate-100">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Evaluation Setup Checklists</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="p-3.5 rounded-xl border border-slate-150 bg-slate-50 flex justify-between items-center text-slate-700">
+                  <div>
+                    <strong className="text-xs font-bold block text-slate-900">Mid-Year HOD Appraisals</strong>
+                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ClickUp List: Appraisal Forms</span>
+                  </div>
+                  <Badge variant="green">Active</Badge>
+                </div>
+
+                <div className="p-3.5 rounded-xl border border-slate-150 bg-slate-50 flex justify-between items-center text-slate-700">
+                  <div>
+                    <strong className="text-xs font-bold block text-slate-900">Annual Peer-to-Peer Review Sync</strong>
+                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ClickUp List: Peer Appraisals</span>
+                  </div>
+                  <Badge variant="amber">Not Started</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-2">
+                <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Review Template Automation</h4>
+                <p className="text-[11px] text-slate-655 font-semibold leading-relaxed">
+                  Every 180 Days, ClickUp automatically sends standard performance forms and templates to team members, generating active task lines in respective HOD clearance schedules.
+                </p>
+                <div className="pt-3">
+                  <Button variant="outline" size="sm" onClick={() => setActiveFormModal('performance')}>
+                    Test Appraisal Intake Form
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TRAINING TAB */}
+        {activeTab === 'training' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest mb-4">Mandatory Compliance Training Logs</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs font-extrabold text-slate-700 mb-1">
+                    <span>HSE Site Operations Safety Course</span>
+                    <span className="text-emerald-600">92% Compliance</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-600 h-full rounded-full" style={{ width: '92%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-extrabold text-slate-700 mb-1">
+                    <span>ClickUp Solution Workspace Training</span>
+                    <span className="text-emerald-500">85% Compliance</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '85%' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STAFF OFFBOARDING TAB */}
+        {activeTab === 'exits' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div>
+                <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-wide">Exit Clearance & handover check</h3>
+                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Tying offboard clearances directly to asset return files.</p>
+              </div>
+              <Button variant="outline" size="xs" onClick={() => setActiveFormModal('exit')}>
+                Test Exit Clearance Form
+              </Button>
+            </div>
+
+            <div className="bg-white border border-slate-201 rounded-xl shadow-xs overflow-hidden">
+              <table className="w-full text-left text-xs font-bold select-none">
+                <thead>
+                  <tr className="bg-slate-150 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-200">
+                    <th className="p-3">Staff Name</th>
+                    <th className="p-3">Position</th>
+                    <th className="p-3">Exit Target Date</th>
+                    <th className="p-3">Department</th>
+                    <th className="p-3">Clearance Completion</th>
+                    <th className="p-3 text-right">Audit Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {exitProcesses.map(p => (
+                    <tr key={p.id} className="hover:bg-slate-50 transition">
+                      <td className="p-3 text-slate-900 font-extrabold">{p.name}</td>
+                      <td className="p-3 text-[#7C3AED] font-bold">{p.pos}</td>
+                      <td className="p-3 text-slate-500">{p.exitDate}</td>
+                      <td className="p-3 text-slate-500">{p.dept}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-extrabold text-indigo-750">{p.clearance}</span>
+                          <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-indigo-600 h-full" style={{ width: p.clearance }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3 text-right">
+                        <Badge variant={p.auditStatus === 'Cleared' ? 'green' : 'amber'}>{p.auditStatus}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
 
-      {/* Onboarding Logging Drawer Modal */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Register Onboarding Lifecycle Slot"
-      >
-        <form onSubmit={handleSubmitOnboarding} className="space-y-4">
+      {/* FORM PREVIEW MODALS (SIMULATION ONLY) */}
+      {/* 1. RECRUITMENT REQUEST FORM */}
+      <Modal isOpen={activeFormModal === 'recruitment'} onClose={() => setActiveFormModal(null)} title="Intake Form: Recruitment Request">
+        <div className="space-y-4">
+          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
+          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
+            
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Target Role/Position Title</label>
+              <input type="text" disabled placeholder="e.g. Senior Piping Specialist" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Budget Allocation Range</label>
+              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
+                <option>Tier 1 ($50k - $80k)</option>
+                <option>Tier 2 ($80k - $120k)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Justification Memo</label>
+              <textarea disabled rows={3} placeholder="Please provide hiring context..." className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white resize-none" />
+            </div>
+
+            <p className="text-[10px] text-slate-405 font-bold italic">
+              When submitted by managers, this form automatically creates a "Request Submitted" task in the HR Recruitment Space.
+            </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 2. LEAVE APPLICATION FORM */}
+      <Modal isOpen={activeFormModal === 'leave'} onClose={() => setActiveFormModal(null)} title="Intake Form: Leave Application">
+        <div className="space-y-4">
+          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
+          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
+            
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Applicant Name</label>
+              <input type="text" disabled placeholder="e.g. Amadi Kalu" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Start Date</label>
+                <input type="date" disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">End Date</label>
+                <input type="date" disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Leave Category</label>
+              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
+                <option>Annual Leave</option>
+                <option>Casual Leave</option>
+                <option>Sick Leave</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 3. PERFORMANCE REVIEW FORM */}
+      <Modal isOpen={activeFormModal === 'performance'} onClose={() => setActiveFormModal(null)} title="Intake Form: HOD Appraisal Submit">
+        <div className="space-y-4">
+          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
+          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Reviewee / Team Member</label>
+              <input type="text" disabled placeholder="e.g. Kelechi Egwu" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Core Capability Rating</label>
+              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
+                <option>Exceeds Expectations (Level 5)</option>
+                <option>Meets Expectations (Level 3)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 4. EXIT CLEARANCE FORM */}
+      <Modal isOpen={activeFormModal === 'exit'} onClose={() => setActiveFormModal(null)} title="Intake Form: Exit & Offboard Clearance Check">
+        <div className="space-y-4">
+          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
+          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Departing Employee Name</label>
+              <input type="text" disabled placeholder="e.g. Zainab Yusuf" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold uppercase text-slate-400">Handover Verifications Required</label>
+              <div className="space-y-1.5 font-bold">
+                <div className="flex items-center gap-2"><input type="checkbox" disabled checked /> IT Access Revoked</div>
+                <div className="flex items-center gap-2"><input type="checkbox" disabled checked /> Company Assets returned & signed</div>
+                <div className="flex items-center gap-2"><input type="checkbox" disabled /> Final Salary accounts settlement</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* LOG ONBOARDING REQUEST MODAL (Sandbox Action) */}
+      <Modal isOpen={addCandModal} onClose={() => setAddCandModal(false)} title="Simulate Candidate Submission">
+        <form onSubmit={handleCreateRecruitmentRequest} className="space-y-4 font-bold text-xs">
           <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Employee/Candidate Full Name</label>
+            <label className="block text-slate-600 mb-1 uppercase text-[10px]">Candidate Full Name</label>
             <input
               type="text"
               required
-              placeholder="e.g. Adebowale Okafor"
-              value={candidateName}
-              onChange={(e) => setCandidateName(e.target.value)}
-              className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-600 focus:outline-none"
+              placeholder="e.g. Amadi Kalu"
+              value={candName}
+              onChange={(e) => setCandName(e.target.value)}
+              className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-indigo-600 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Target Position/Role</label>
+            <label className="block text-slate-600 mb-1 uppercase text-[10px]">Target Position/Role</label>
             <input
               type="text"
               required
-              placeholder="e.g. Operations Coordinator"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-600 focus:outline-none"
+              placeholder="e.g. Electrical Safety Assistant"
+              value={candPos}
+              onChange={(e) => setCandPos(e.target.value)}
+              className="w-full p-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-indigo-600 focus:outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Assigned Department</label>
+              <label className="block text-slate-600 mb-1 uppercase text-[10px]">Department</label>
               <select
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:outline-none"
+                value={candDept}
+                onChange={(e) => setCandDept(e.target.value)}
+                className="w-full p-2 border border-slate-205 rounded-lg focus:outline-none"
               >
-                <option value="HR Operations">HR Operations</option>
+                <option value="HR">HR Operations</option>
                 <option value="Procurement">Procurement</option>
-                <option value="Projects">Projects</option>
-                <option value="Vendor Management">Vendor Management</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Ops">Operations Mode</option>
                 <option value="HSE">HSE</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Contract Type</label>
+              <label className="block text-slate-600 mb-1 uppercase text-[10px]">Contracts Type</label>
               <select
-                value={contractType}
-                onChange={(e) => setContractType(e.target.value as any)}
-                className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:outline-none"
+                value={candType}
+                onChange={(e) => setCandType(e.target.value as any)}
+                className="w-full p-2 border border-slate-205 rounded-lg focus:outline-none"
               >
                 <option value="Full-time">Full-time</option>
                 <option value="Contract">Contract</option>
@@ -229,25 +745,12 @@ export const HROperations: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase mb-1">SLA Priority Level</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
-              className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:outline-none"
-            >
-              <option value="Low">Low (Standard)</option>
-              <option value="Medium">Medium (Escalate)</option>
-              <option value="High">High (Immediate Action)</option>
-            </select>
-          </div>
-
-          <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">
-            <Button variant="outline" size="sm" type="button" onClick={() => setModalOpen(false)}>
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+            <Button variant="outline" size="sm" type="button" onClick={() => setAddCandModal(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="sm" type="submit">
-              Log Candidate
+              Submit Form Intake
             </Button>
           </div>
         </form>
@@ -256,4 +759,5 @@ export const HROperations: React.FC = () => {
     </div>
   );
 };
+
 export default HROperations;

@@ -66,7 +66,7 @@ interface CommandCenterContextType {
 const CommandCenterContext = createContext<CommandCenterContextType | undefined>(undefined);
 
 export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentRole, setRole] = useState<UserRole>('CEO / Executive');
+  const [currentRole, setRole] = useState<UserRole>('Executive Management');
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>(initialOnboardingTasks);
   const [purchaseRequests, setPurchaseRequests] = useState<PurchaseRequest[]>(initialPurchaseRequests);

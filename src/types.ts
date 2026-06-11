@@ -1,4 +1,4 @@
-export type UserRole = 'CEO / Executive' | 'Department Head' | 'Manager' | 'Staff' | 'Vendor / External Guest';
+export type UserRole = 'Executive Management' | 'Department Manager' | 'End User' | 'Vendor Guest' | 'System Administrator';
 
 export interface Task {
   id: string;

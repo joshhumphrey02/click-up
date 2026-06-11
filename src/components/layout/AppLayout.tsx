@@ -88,37 +88,37 @@ export const AppLayout: React.FC = () => {
 
                   {/* Suggest Route button depending on what is allowed */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                    {allowedPaths.includes('/staff-workspace') && (
+                    {allowedPaths.includes('/hr-operations') && (
                       <button
-                        onClick={() => navigate('/staff-workspace')}
+                        onClick={() => navigate('/hr-operations')}
                         className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold rounded-lg transition cursor-pointer"
                       >
                         <UserCheck className="h-4 w-4 shrink-0" />
-                        Staff Workspace
+                        HR Operations
                       </button>
                     )}
-                    {allowedPaths.includes('/manager-dashboard') && (
+                    {allowedPaths.includes('/executive-dashboard') && (
                       <button
-                        onClick={() => navigate('/manager-dashboard')}
+                        onClick={() => navigate('/executive-dashboard')}
                         className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold rounded-lg transition cursor-pointer"
                       >
                         <LayoutGrid className="h-4 w-4 shrink-0" />
-                        Manager Dashboard
+                        Reporting Dashboard
                       </button>
                     )}
                     <button
                       onClick={() => navigate('/')}
                       className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold rounded-lg transition cursor-pointer"
                     >
-                      Systems Overview
+                      Proposal Overview
                     </button>
 
                     <button
-                      onClick={() => setRole('CEO / Executive')}
-                      className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition shadow-md cursor-pointer"
+                      onClick={() => setRole('Executive Management')}
+                      className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition shadow-md cursor-pointer"
                     >
                       <KeyRound className="h-4 w-4 shrink-0" />
-                      Elevate to CEO
+                      Elevate to Executive
                     </button>
                   </div>
                 </div>

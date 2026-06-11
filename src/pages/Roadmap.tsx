@@ -6,203 +6,316 @@ import {
   ArrowRight,
   TrendingUp,
   Award,
-  CircleDot
+  CircleDot,
+  Layers,
+  ChevronRight,
+  Users2,
+  FileCheck2,
+  Settings2,
+  ShieldCheck,
+  Zap,
+  BookmarkCheck,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { StatCard } from '../components/ui/StatCard';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 
-export const Roadmap: React.FC = () => {
-  // Chosen active week for detail highlight
-  const [activeWeek, setActiveWeek] = useState(1);
+interface MilestonePhase {
+  phaseNum: number;
+  weeksLabel: string;
+  title: string;
+  duration: string;
+  focus: string;
+  status: 'In Progress' | 'Completed' | 'Upcoming';
+  readinessPercentage: number;
+  milestones: { desc: string; complete: boolean }[];
+  adoptionIndicator: string;
+}
 
-  // Roadmap Weeks database
-  const roadmapData = [
+export const Roadmap: React.FC = () => {
+  const [selectedPhase, setSelectedPhase] = useState<number>(1);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // 10-Week Proposal Phases
+  const phasesList: MilestonePhase[] = [
     {
-      week: 1,
-      title: 'Preparation & Architecture Alignment',
-      focus: 'Stakeholder interviews, systems audits, data schema definition, and security parameters validation.',
-      tasks: [
-        { desc: 'Review existing paper templates & manual excels', complete: true },
-        { desc: 'Align regulatory approval threshold values', complete: true },
-        { desc: 'Provision development test instances on Cloud', complete: true },
-        { desc: 'Sign off on core ISO RBAC access matrix permissions', complete: false }
+      phaseNum: 1,
+      weeksLabel: 'Weeks 1-2',
+      title: 'Workspace Architecture & Custom Fields Setup',
+      duration: '10 Days',
+      focus: 'Define standard organizational schemas, custom hierarchy layers (Spaces, Folders, Lists), custom column formats, and secure permission structures.',
+      status: 'Completed',
+      readinessPercentage: 100,
+      adoptionIndicator: 'HODs aligned on Space-Folder-List nomenclature schemas.',
+      milestones: [
+        { desc: 'Audit manual spreadsheet columns & legacy registers', complete: true },
+        { desc: 'Configure standard Workspace custom fields formats', complete: true },
+        { desc: 'Map Role-Based Permissions access profiles', complete: true },
+        { desc: 'Provision development test instances on Cloud', complete: true }
       ]
     },
     {
-      week: 2,
-      title: 'Form & SOP Digitization Setups',
-      focus: 'Recreating company physical registers as frictionless digital ClickUp forms, and centralizing the SOP library.',
-      tasks: [
-        { desc: 'Configure Procurement Tier approval paths', complete: true },
-        { desc: 'Draft interactive HSE warning SMS escalation rule triggers', complete: false },
-        { desc: 'Migrate active SOP policy articles into the system', complete: false },
-        { desc: 'Deploy test webhooks connecting email APIs', complete: false }
+      phaseNum: 2,
+      weeksLabel: 'Weeks 3-4',
+      title: 'Active Operational Spaces Deployment & SOP Ingestion',
+      duration: '14 Days',
+      focus: 'Configure core ClickUp spaces (HR Operations, Procurement, Projects, Vendor, HSE), and digitize policy SOP templates under core Lists.',
+      status: 'In Progress',
+      readinessPercentage: 80,
+      adoptionIndicator: 'HR & Projects teams successfully piloting first-generation digital intake boards.',
+      milestones: [
+        { desc: 'Create default Kanban columns & active task registers', complete: true },
+        { desc: 'Populate the interactive HSE severity incident registers', complete: true },
+        { desc: 'Consolidate historic SOP documents into digitized policies', complete: true },
+        { desc: 'Sync external vendor portfolio structures and directories', complete: false }
       ]
     },
     {
-      week: 3,
-      title: 'ERP & Systems Integrations',
-      focus: 'Plugging the platform into the existing corporate accounts registers, databases, and communication servers.',
-      tasks: [
-        { desc: 'Establish Google Workspace calendar sync', complete: false },
-        { desc: 'Connect active directory LDAP staff logins', complete: false },
-        { desc: 'Sync SAP accounting expense budget codes', complete: false },
-        { desc: 'Link Twilio SMS API channels in HSE triggers', complete: false }
+      phaseNum: 3,
+      weeksLabel: 'Weeks 5-6',
+      title: 'Workflow Automation, SLA & Notification Matrix',
+      duration: '12 Days',
+      focus: 'Code custom automatic routing recipes, SLA compliance warnings, and SMS trigger dispatch channels.',
+      status: 'Upcoming',
+      readinessPercentage: 0,
+      adoptionIndicator: 'Automated ₦10M threshold routing bypass triggers mapped in dry-runs.',
+      milestones: [
+        { desc: 'Establish escalation triggers for overdue SLA dockets', complete: false },
+        { desc: 'Connect Twilio direct SMS channels for HSE safety hazards', complete: false },
+        { desc: 'Program automated checklist generation rules', complete: false }
       ]
     },
     {
-      week: 4,
-      title: 'Staff Onboarding & Training Dry Run',
-      focus: 'Department Head training, staff training files provision, and initial dry-run of standard operations.',
-      tasks: [
-        { desc: 'Coordinate training sessions with Ada Okafor (HR lead)', complete: false },
-        { desc: 'Execute standard mock purchase orders', complete: false },
-        { desc: 'Publish video tutorials on the workspace forum', complete: false },
-        { desc: 'Record feedback on form field simplicity', complete: false }
+      phaseNum: 4,
+      weeksLabel: 'Weeks 7-8',
+      title: 'Pilot Test, Dry Run & Executive Approvals Validation',
+      duration: '14 Days',
+      focus: 'Execute concurrent simulated operations tests across HR, Procurement, and HSE units to validate structural safety.',
+      status: 'Upcoming',
+      readinessPercentage: 0,
+      adoptionIndicator: 'Board directors complete mock approvals on sample dockets.',
+      milestones: [
+        { desc: 'Run end-to-end purchasing request to PO transformations', complete: false },
+        { desc: 'Test joint-venture committee decision logs sync speed', complete: false },
+        { desc: 'Measure system average response SLA duration indices', complete: false }
       ]
     },
     {
-      week: 5,
-      title: 'Pilot Launch & Departmental Dry Run',
-      focus: 'Isolating the platform to the initial department for trial (HR & Projects) to evaluate performance metrics.',
-      tasks: [
-        { desc: 'Lock manual excels in HR Department', complete: false },
-        { desc: 'Track task closure SLA durations', complete: false },
-        { desc: 'Sign off HSE checklists on site', complete: false },
-        { desc: 'Resolve initial system bugs from feedback logs', complete: false }
-      ]
-    },
-    {
-      week: 6,
-      title: 'Full Org Rollout & Executive Monitoring',
-      focus: 'Promoting all departments to active production status. Establishing continuous audit monitors for high value transactions.',
-      tasks: [
-        { desc: 'Initiate full production servers migration', complete: false },
-        { desc: 'Establish live executive dashboard analytics', complete: false },
-        { desc: 'Decommission legacy paper filings', complete: false },
-        { desc: 'Publish Q2 operational efficiency reports', complete: false }
+      phaseNum: 5,
+      weeksLabel: 'Weeks 9-10',
+      title: 'Live Cutover, User Training & Change Management',
+      duration: '14 Days',
+      focus: 'Publish Q2 training schedule, launch onboarding video playbooks, de-commission legacy paper books and shift entire group to production.',
+      status: 'Upcoming',
+      readinessPercentage: 0,
+      adoptionIndicator: 'Group-ready adoption milestone checked by executive director command office.',
+      milestones: [
+        { desc: 'Publish video tutorials and visual adoption playbooks', complete: false },
+        { desc: 'Establish Live Helpdesk support channel inside workspace', complete: false },
+        { desc: 'Decommission all physical paper/loose spreadsheet logs', complete: false }
       ]
     }
   ];
 
-  const currentWeekData = roadmapData.find(w => w.week === activeWeek) || roadmapData[0];
+  const triggerToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const activePhaseData = phasesList.find(p => p.phaseNum === selectedPhase) || phasesList[0];
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto text-slate-700 select-none">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans text-slate-705">
       
-      {/* Sub titles layout details */}
-      <div className="bg-white border border-slate-205 p-6 rounded-xl shadow-xs">
-        <h2 className="text-lg font-bold text-slate-900">Platform Deployment & Implementation Roadmap</h2>
-        <p className="text-xs text-slate-500 mt-1">
-          A structures 6-Week playbook detailing configuration checkpoints, active directory imports, staff training dry runs, and pilot launches. Click on any week code below to inspect target milestones.
-        </p>
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>{toast}</span>
+        </div>
+      )}
+
+      {/* Hero Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
+        <div>
+          <span className="text-[10px] bg-purple-105 bg-purple-200 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            ClickUp Workspace: DEPLOYMENT-PLAN
+          </span>
+          <h2 className="text-xl font-black text-slate-905 mt-2">15. Implementation Timeline</h2>
+          <p className="text-xs text-slate-505 mt-1 font-semibold">
+            Chronological 10-week implementation roadmap aligned with the corporate proposal. Click on any phase track item below to inspect milestones.
+          </p>
+        </div>
+        <div className="shrink-0 flex items-center gap-2">
+          <Badge variant="emerald">Live Tracking Enabled</Badge>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Deployment KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 select-none animate-fade-in">
         <StatCard
           icon={CalendarDays}
-          value="6 Weeks"
-          label="Total Target Duration"
-          description="Structured implementation stages"
+          value="10 Weeks"
+          label="SOP Deployment Lifecycle"
+          description="Total implementation roadmap scale"
           variant="indigo"
         />
         <StatCard
           icon={Clock}
-          value="Week 1 Launch"
-          label="Current Deployment Week"
-          description="Infrastructure en-route online"
+          value="Phase 2 Active"
+          label="Deployment Milestone"
+          description="Focus: Space deployment & setup"
           variant="amber"
         />
         <StatCard
           icon={Award}
-          value="95% Readiness"
-          label="Pilot Team SLA Confirmed"
-          description="HR & Project groups en-route and trained"
+          value="25% Completed"
+          label="Total Workspace Integration"
+          description="On schedule to meet parameters"
           variant="emerald"
+        />
+        <StatCard
+          icon={TrendingUp}
+          value="98.4% On-time"
+          label="Roadmap Quality index"
+          description="Evaluated weekly against plan"
+          variant="blue"
         />
       </div>
 
-      {/* Week selection buttons */}
-      <div className="bg-slate-100/60 p-2 border border-slate-200/80 rounded-xl">
-        <div className="flex overflow-x-auto gap-2.5 pb-1 scrollbar-thin">
-          {roadmapData.map((w) => (
-            <button
-              key={w.week}
-              onClick={() => setActiveWeek(w.week)}
-              className={`px-4.5 py-3 text-xs font-bold rounded-lg shrink-0 cursor-pointer transition flex items-center gap-1.5 ${
-                activeWeek === w.week
-                  ? 'bg-indigo-900 text-white shadow-md font-black'
-                  : 'bg-white text-slate-655 hover:text-slate-905 border border-slate-205'
-              }`}
-            >
-              <CircleDot className={`h-3.5 w-3.5 ${activeWeek === w.week ? 'text-indigo-300' : 'text-slate-400'}`} />
-              <span>Week {w.week}: {w.title.split('&')[0]}</span>
-            </button>
-          ))}
+      {/* HORIZONTAL ROADMAP PHASES TIMELINE GRID */}
+      <div className="bg-slate-50 border border-slate-200 p-4.5 rounded-2xl select-none">
+        <span className="text-[9px] uppercase font-black text-slate-400 block mb-3.5 tracking-wider">Implementation Phase Track</span>
+        
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {phasesList.map(p => {
+            const isSelected = p.phaseNum === selectedPhase;
+            return (
+              <button
+                key={p.phaseNum}
+                onClick={() => { setSelectedPhase(p.phaseNum); triggerToast(`Inspecting: Phase ${p.phaseNum} details`); }}
+                className={`text-left p-4 rounded-xl border font-bold text-xs leading-snug transition-all duration-150 cursor-pointer ${
+                  isSelected ? 'bg-white border-[#7C3AED] ring-2 ring-[#7C3AED]/10 shadow-xs' : 'bg-white border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex justify-between items-center text-[9px] uppercase text-slate-400">
+                  <span>Phase {p.phaseNum}</span>
+                  <Badge variant={p.status === 'Completed' ? 'green' : p.status === 'In Progress' ? 'amber' : 'gray'}>
+                    {p.status.toUpperCase()}
+                  </Badge>
+                </div>
+                
+                <h4 className="text-slate-905 font-black mt-2 truncate text-xs" title={p.title}>{p.title}</h4>
+                <p className="text-[10px] text-indigo-700 font-extrabold mt-1.5">{p.weeksLabel} ({p.duration})</p>
+                
+                {/* Visual completion bar inside timelines page */}
+                <div className="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
+                  <div className="bg-emerald-500 h-full transition-all duration-200" style={{ width: `${p.readinessPercentage}%` }} />
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* CORE ACTIVE PHASE SPECIFICATION SHEET */}
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
         
-        {/* Week Detail highlight Overview (2/3) */}
-        {currentWeekData && (
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="border border-indigo-100">
-              <CardHeader className="bg-slate-50/50 flex justify-between items-center">
+        {/* Detail sheet overview and tasks list (8/12) */}
+        <div className="lg:col-span-8 space-y-6">
+          {activePhaseData ? (
+            <Card className="bg-white border border-slate-205">
+              <CardHeader className="bg-slate-50 p-4 border-b border-slate-100 flex flex-row items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-indigo-750">Active Week inspect: Phase {currentWeekData.week}</span>
-                  <CardTitle className="mt-0.5">{currentWeekData.title}</CardTitle>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">PROJECT DETAILED RUNBOOK SHEET</span>
+                  <CardTitle className="text-sm font-black text-slate-950 mt-1">Phase {activePhaseData.phaseNum}: {activePhaseData.title}</CardTitle>
                 </div>
-                <Badge variant={currentWeekData.week === 1 ? 'indigo' : 'gray'}>
-                  {currentWeekData.week === 1 ? 'CURRENT STAGE' : 'FUTURE CHECKPOINT'}
-                </Badge>
+                <Badge variant="indigo">{activePhaseData.weeksLabel}</Badge>
               </CardHeader>
-              <CardContent className="p-6 space-y-5">
+
+              <CardContent className="p-5 space-y-5 font-bold text-xs leading-normal select-none">
+                
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-slate-400 mb-1.5">Weekly Agenda Objective</p>
-                  <p className="text-xs text-slate-700 leading-relaxed font-semibold">{currentWeekData.focus}</p>
+                  <span className="text-[9px] uppercase tracking-wide font-black text-slate-450 block mb-1">Strategic Objective</span>
+                  <p className="text-[11.5px] text-slate-705 leading-relaxed font-semibold">{activePhaseData.focus}</p>
                 </div>
 
-                <div className="space-y-3.5 border-t border-slate-50 pt-4.5">
-                  <h4 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Milestones Checklist</h4>
+                {/* Subtask list */}
+                <div className="space-y-2 border-t border-slate-100 pt-4">
+                  <span className="text-[10px] uppercase font-black text-[#7C3AED] block mb-1.5">Actionable Deployment Milestone Checkpoints:</span>
                   
-                  <div className="space-y-2">
-                    {currentWeekData.tasks.map((task, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-lg text-xs font-semibold">
-                        <span className={task.complete ? 'line-through text-slate-400 font-medium' : 'text-slate-800'}>
-                          {task.desc}
-                        </span>
-                        <Badge variant={task.complete ? 'green' : 'gray'}>
-                          {task.complete ? 'COMPLETED' : 'PENDING'}
+                  <div className="space-y-2.5">
+                    {activePhaseData.milestones.map((mil, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`p-3 border border-slate-150 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition flex justify-between items-center text-xs font-bold leading-normal ${
+                          mil.complete ? 'text-slate-405 italic' : 'text-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle className={`h-4.5 w-4.5 shrink-0 ${mil.complete ? 'text-emerald-600' : 'text-slate-300'}`} />
+                          <span className={mil.complete ? 'line-through text-slate-450 font-medium' : ''}>{mil.desc}</span>
+                        </div>
+                        <Badge variant={mil.complete ? 'green' : 'gray'}>
+                          {mil.complete ? 'CONCLUDED' : 'DOCKET PENDING'}
                         </Badge>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {/* Adoption Check Indicator widget inside phase sheet */}
+                <div className="bg-indigo-50/20 border border-indigo-100 p-4 rounded-xl flex gap-3.5 items-start">
+                  <BookmarkCheck className="h-5.5 w-5.5 text-indigo-700 shrink-0 mt-0.5 animate-pulse" />
+                  <div>
+                    <span className="text-[10px] uppercase font-black text-indigo-705 block mb-0.5">Adoption Readiness Check:</span>
+                    <p className="text-[11px] text-slate-655 font-semibold leading-relaxed">
+                      {activePhaseData.adoptionIndicator}
+                    </p>
+                  </div>
+                </div>
+
               </CardContent>
             </Card>
-          </div>
-        )}
+          ) : (
+            <div className="text-center p-12 text-slate-400 italic">No phase record selected.</div>
+          )}
+        </div>
 
-        {/* Small general training & dry run notes (1/3) */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Continuous Audit Checkpoints</CardTitle>
+        {/* Small secondary sidebar metrics (4/12) */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          <Card className="bg-white border border-slate-200">
+            <CardHeader className="bg-slate-50/50 p-4 border-b border-slate-100">
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-400">Implementation SLA Frameworks</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 font-semibold text-xs leading-relaxed">
-              <div className="p-3 bg-slate-50 rounded-lg text-[11px]">
-                <p className="font-bold text-slate-800">ISO-27001 Validation Check</p>
-                <p className="text-[10px] text-slate-455 mt-1">Conducted on encryption schemas before migrating real ledger codes.</p>
+            <CardContent className="p-4 space-y-4 font-semibold text-xs leading-relaxed select-none">
+              
+              <div className="p-3 bg-slate-50 hover:bg-slate-100 transition rounded-xl relative">
+                <span className="absolute top-3 right-3 text-[#7C3AED]"><Settings2 className="h-4.5 w-4.5" /></span>
+                <strong>Configuration Auditing</strong>
+                <p className="text-[10px] text-slate-500 font-semibold mt-1">Conducted on staging instances prior to live group migration vectors.</p>
               </div>
-              <div className="p-3 bg-emerald-50 text-emerald-805 rounded-lg text-[11px] border border-emerald-100">
-                <p className="font-bold">Post-Launch Q2 Audit Report</p>
-                <p className="text-[10px] text-emerald-700 mt-1">Evaluates average SLA resolution times following deployment.</p>
+
+              <div className="p-3 bg-emerald-50 text-emerald-805 hover:bg-emerald-100 transition rounded-xl border border-emerald-105 relative">
+                <span className="absolute top-3 right-3 text-emerald-700"><ShieldCheck className="h-4.5 w-4.5" /></span>
+                <strong>ISO Compliance Gate</strong>
+                <p className="text-[10px] text-emerald-700 font-semibold mt-1">System authorization registers signed prior to full de-commissioning of heritage paper files.</p>
               </div>
+
             </CardContent>
           </Card>
+
+          <Card className="bg-yellow-50/30 border border-yellow-200 border-thin text-yellow-800 p-4 rounded-2xl relative space-y-2 font-bold text-xs">
+            <AlertCircle className="h-5.5 w-5.5 text-amber-600 animate-pulse" />
+            <strong>Implementation Critical Path Warning</strong>
+            <p className="text-[10px] text-slate-505 font-semibold leading-relaxed">
+              Delaying the Vendor Portal CAD verification document migration past Week 4 will shift the Procurement launch schedule parameters by +3 working days.
+            </p>
+          </Card>
+
         </div>
 
       </div>
@@ -210,4 +323,5 @@ export const Roadmap: React.FC = () => {
     </div>
   );
 };
+
 export default Roadmap;
