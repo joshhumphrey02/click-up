@@ -58,13 +58,15 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
-            {footer || (
-              <Button variant="outline" size="sm" onClick={onClose}>
-                Close
-              </Button>
-            )}
-          </div>
+          {footer !== null && (
+            <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+              {footer || (
+                <Button variant="outline" size="sm" onClick={onClose}>
+                  Close
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

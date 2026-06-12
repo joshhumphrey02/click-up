@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   CalendarDays,
   CheckCircle,
@@ -36,7 +37,7 @@ interface MilestonePhase {
 
 export const Roadmap: React.FC = () => {
   const [selectedPhase, setSelectedPhase] = useState<number>(1);
-  const [toast, setToast] = useState<string | null>(null);
+  // toast managed via sonner
 
   // 10-Week Proposal Phases
   const phasesList: MilestonePhase[] = [
@@ -120,8 +121,11 @@ export const Roadmap: React.FC = () => {
   ];
 
   const triggerToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3500);
+    if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('fail')) {
+      sonnerToast.error(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   const activePhaseData = phasesList.find(p => p.phaseNum === selectedPhase) || phasesList[0];
@@ -129,13 +133,7 @@ export const Roadmap: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans text-slate-705">
       
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {/* Toast notifications processed by sonner */}
 
       {/* Hero Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
@@ -285,34 +283,32 @@ export const Roadmap: React.FC = () => {
         </div>
 
         {/* Small secondary sidebar metrics (4/12) */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4">
           
           <Card className="bg-white border border-slate-200">
             <CardHeader className="bg-slate-50/50 p-4 border-b border-slate-100">
-              <CardTitle className="text-xs uppercase font-extrabold text-slate-400">Implementation SLA Frameworks</CardTitle>
+              <CardTitle className="text-xs uppercase font-extrabold text-slate-400">Governance</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 space-y-4 font-semibold text-xs leading-relaxed select-none">
+            <CardContent className="p-4 space-y-3 font-semibold text-xs leading-relaxed select-none">
               
-              <div className="p-3 bg-slate-50 hover:bg-slate-100 transition rounded-xl relative">
-                <span className="absolute top-3 right-3 text-[#7C3AED]"><Settings2 className="h-4.5 w-4.5" /></span>
-                <strong>Configuration Auditing</strong>
-                <p className="text-[10px] text-slate-500 font-semibold mt-1">Conducted on staging instances prior to live group migration vectors.</p>
+              <div className="p-2.5 bg-slate-50 rounded-lg">
+                <strong>Staging Audits</strong>
+                <p className="text-[10px] text-slate-500 font-semibold mt-0.5">Staging phase audits verified.</p>
               </div>
 
-              <div className="p-3 bg-emerald-50 text-emerald-805 hover:bg-emerald-100 transition rounded-xl border border-emerald-105 relative">
-                <span className="absolute top-3 right-3 text-emerald-700"><ShieldCheck className="h-4.5 w-4.5" /></span>
-                <strong>ISO Compliance Gate</strong>
-                <p className="text-[10px] text-emerald-700 font-semibold mt-1">System authorization registers signed prior to full de-commissioning of heritage paper files.</p>
+              <div className="p-2.5 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-100">
+                <strong>Compliance Check</strong>
+                <p className="text-[10px] text-emerald-700 font-semibold mt-0.5">ISO authorizations synced.</p>
               </div>
 
             </CardContent>
           </Card>
 
-          <Card className="bg-yellow-50/30 border border-yellow-200 border-thin text-yellow-800 p-4 rounded-2xl relative space-y-2 font-bold text-xs">
-            <AlertCircle className="h-5.5 w-5.5 text-amber-600 animate-pulse" />
-            <strong>Implementation Critical Path Warning</strong>
+          <Card className="bg-yellow-50/30 border border-yellow-200 text-yellow-800 p-4 rounded-xl relative space-y-2 font-bold text-xs">
+            <AlertCircle className="h-4.5 w-4.5 text-amber-600 animate-pulse" />
+            <strong>Critical Path Alert</strong>
             <p className="text-[10px] text-slate-505 font-semibold leading-relaxed">
-              Delaying the Vendor Portal CAD verification document migration past Week 4 will shift the Procurement launch schedule parameters by +3 working days.
+              Delays in Vendor Portal document checks will impact the Procurement live launch timeline.
             </p>
           </Card>
 

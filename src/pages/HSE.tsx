@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   ShieldAlert,
   PlusCircle,
@@ -37,7 +38,7 @@ interface IncidentItem {
 export const HSE: React.FC = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [escalationTriggered, setEscalationTriggered] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  // toastMessage managed via sonner
 
   // Form Fields
   const [incDate, setIncDate] = useState(new Date().toISOString().split('T')[0]);
@@ -115,8 +116,13 @@ export const HSE: React.FC = () => {
   ];
 
   const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    if (msg.toLowerCase().includes('escalated') || msg.toLowerCase().includes('danger') || msg.toLowerCase().includes('critical') || msg.toLowerCase().includes('error')) {
+      sonnerToast.error(msg);
+    } else if (msg.toLowerCase().includes('resolve') || msg.toLowerCase().includes('success')) {
+      sonnerToast.success(msg);
+    } else {
+      sonnerToast.info(msg);
+    }
   };
 
   const handleCreateIncident = (e: React.FormEvent) => {
@@ -168,13 +174,7 @@ export const HSE: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      {/* Toast managed by sonner */}
 
       {/* Title block */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-201 p-6 rounded-2xl shadow-xs">

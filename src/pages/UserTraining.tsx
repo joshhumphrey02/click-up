@@ -59,11 +59,11 @@ export const UserTraining: React.FC = () => {
   ];
 
   const checkoutRules = [
-    { id: '1', label: 'Hold initial discovery workshops to map operational legacy SOPs to ClickUp hierarchy.' },
-    { id: '2', label: 'Establish custom role permissions and perform sandbox dry runs for elite users.' },
-    { id: '3', label: 'Deploy standardized training modules across all executive and personnel nodes.' },
-    { id: '4', label: 'Implement 100% digital checklists for Leave, HSE, and Purchasing applications.' },
-    { id: '5', label: 'Monitor ClickUp active adoption score and provide 1-on-1 operational coaching sessions.' }
+    { id: '1', label: 'Discover and map operational workflows.' },
+    { id: '2', label: 'Configure role permissions and run sandbox simulation.' },
+    { id: '3', label: 'Deploy training modules for staff.' },
+    { id: '4', label: 'Launch Leave, HSE, and Procurement checklists.' },
+    { id: '5', label: 'Monitor active adoption score and perform coaching.' }
   ];
 
   return (
@@ -196,33 +196,33 @@ export const UserTraining: React.FC = () => {
             <div className="space-y-4">
               <div className="border-l-2 border-purple-500 pl-4 py-1 relative">
                 <span className="absolute -left-1.5 top-2 w-3.5 h-3.5 bg-purple-600 rounded-full border-2 border-white shadow-xs" />
-                <strong className="text-xs text-slate-900 block font-bold leading-none mb-1">Week 1: Pilot Team Ignition</strong>
+                <strong className="text-xs text-slate-900 block font-bold leading-none mb-1">Week 1: Pilot Team Launch</strong>
                 <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
-                  HR Leads map initial Onboarding & Leave Requests checklists to prove architecture feasibility.
+                  Pilot testing of Onboarding and Leave checklists with HR teams.
                 </p>
               </div>
 
               <div className="border-l-2 border-purple-500 pl-4 py-1 relative">
                 <span className="absolute -left-1.5 top-2 w-3.5 h-3.5 bg-purple-600 rounded-full border-2 border-white shadow-xs" />
-                <strong className="text-xs text-slate-900 block font-bold leading-none mb-1">Week 2-3: Core Operations Integration</strong>
+                <strong className="text-xs text-slate-900 block font-bold leading-none mb-1">Week 2-3: Core Operations</strong>
                 <p className="text-[10px] text-slate-500 leading-relaxed font-semibold">
-                  Procurement and HSE managers begin running purchase evaluations and incidents logging.
+                  Deployment to Procurement and HSE managers.
                 </p>
               </div>
 
               <div className="border-l-2 border-slate-200 pl-4 py-1 relative">
                 <span className="absolute -left-1.5 top-2 w-3.5 h-3.5 bg-slate-300 rounded-full border-2 border-white shadow-xs" />
-                <strong className="text-xs text-slate-405 block font-bold leading-none mb-1">Week 4: Global Rollout & Coaching</strong>
+                <strong className="text-xs text-slate-405 block font-bold leading-none mb-1">Week 4: Global Rollout</strong>
                 <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                  Executive Approval flow takes live flight with all department reports integrated into dashboards.
+                  Full system rollout including C-suite Approval boards.
                 </p>
               </div>
             </div>
 
             <div className="p-4 bg-purple-50/50 border border-purple-100 rounded-xl space-y-1 text-slate-900 text-xs">
-              <strong className="text-[10px] uppercase font-bold text-purple-750 block">Post-Onboarding Hotline Support</strong>
+              <strong className="text-[10px] uppercase font-bold text-purple-750 block">Hotline Support</strong>
               <p className="text-[11px] font-semibold text-slate-600 leading-relaxed">
-                Trained Champion Superusers remain active inside departmental ClickUp spaces to answer questions, build specific views, and resolve operational issues instantly.
+                Dedicated champion users answer questions and assist with active questions immediately.
               </p>
             </div>
           </div>

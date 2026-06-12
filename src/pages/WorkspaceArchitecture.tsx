@@ -272,10 +272,7 @@ export const WorkspaceArchitecture: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 bg-slate-50 border border-slate-150 rounded-lg p-3 text-slate-700 text-[11px] leading-relaxed font-semibold">
-              <Info className="h-4 w-4 text-blue-600 inline mr-1.5" />
-              Implementing a defined ClickUp framework completely replaces chaotic phone calls, emails, and isolated Excel workbooks.
-            </div>
+
           </div>
         </div>
 

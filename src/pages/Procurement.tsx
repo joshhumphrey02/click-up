@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   ShoppingCart,
   DollarSign,
@@ -116,14 +117,15 @@ export const Procurement: React.FC = () => {
 
   // View modal controls
   const [selectedReq, setSelectedReq] = useState<PurchaseRequestInfo | null>(null);
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+  // feedbackMsg managed via sonner
 
   // Trigger feedback banner toast
   const showFeedback = (msg: string) => {
-    setFeedbackMsg(msg);
-    setTimeout(() => {
-      setFeedbackMsg(null);
-    }, 4000);
+    if (msg.toLowerCase().includes('reject') || msg.toLowerCase().includes('decline') || msg.toLowerCase().includes('error')) {
+      sonnerToast.error(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   const handleApprove = (id: string) => {
@@ -197,13 +199,7 @@ export const Procurement: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Toast Feedback banner */}
-      {feedbackMsg && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{feedbackMsg}</span>
-        </div>
-      )}
+      {/* Toast Feedback banner handled by sonner */}
 
       {/* Header Info */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">

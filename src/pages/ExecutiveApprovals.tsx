@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   FileCheck2,
   CheckCircle2,
@@ -97,11 +98,14 @@ export const ExecutiveApprovals: React.FC = () => {
 
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [confirmType, setConfirmType] = useState<'Approve' | 'Reject' | 'RequestInfo' | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-
   const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3500);
+    if (msg.toLowerCase().includes('declined') || msg.toLowerCase().includes('rejected') || msg.toLowerCase().includes('error')) {
+      sonnerToast.error(msg);
+    } else if (msg.toLowerCase().includes('request') || msg.toLowerCase().includes('escalated')) {
+      sonnerToast.warning(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   const handleOpenAction = (id: string, action: 'Approve' | 'Reject' | 'RequestInfo') => {
@@ -140,13 +144,7 @@ export const ExecutiveApprovals: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {/* Toast notifications processed by sonner */}
 
       {/* Header Info */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">

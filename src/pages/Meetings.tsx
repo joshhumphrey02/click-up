@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   Video,
   Clock,
@@ -45,7 +46,7 @@ interface BoardDecision {
 }
 
 export const Meetings: React.FC = () => {
-  const [toast, setToast] = useState<string | null>(null);
+  // toast managed via sonner
   const [meetingModal, setMeetingModal] = useState(false);
   const [selectedMeetingIdForMoM, setSelectedMeetingIdForMoM] = useState<string | null>(null);
 
@@ -101,8 +102,11 @@ export const Meetings: React.FC = () => {
   ]);
 
   const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+    if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('fail')) {
+      sonnerToast.error(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   const handleCreateMeeting = (e: React.FormEvent) => {
@@ -161,13 +165,7 @@ export const Meetings: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
       
-      {/* Toast feedback */}
-      {toast && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {/* Toast feedback managed by sonner */}
 
       {/* Hero Page Title Container */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">

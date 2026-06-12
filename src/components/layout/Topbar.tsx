@@ -93,20 +93,6 @@ export const Topbar: React.FC<TopbarProps> = ({ id }) => {
 
       {/* Right Notifications, Badges and Switcher */}
       <div className="flex items-center gap-4">
-        {/* Active Notification Banner Toast */}
-        {activeNotification && (
-          <div className="hidden lg:flex items-center gap-2 bg-slate-905 text-white bg-slate-800 text-xs py-1.5 px-3.5 rounded-lg animate-fade-in shadow-lg border border-slate-700">
-            <CheckCircle className="h-3.5 w-3.5 text-blue-400" />
-            <span className="font-semibold truncate max-w-xs">{activeNotification}</span>
-            <button
-              onClick={() => setActiveNotification(null)}
-              className="ml-1 text-slate-300 hover:text-white transition-colors font-semibold"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
         {/* Notifications Bell */}
         <div className="relative">
           <button

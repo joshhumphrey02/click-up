@@ -48,6 +48,32 @@ export const HROperations: React.FC = () => {
   // Interactive Onboarding Task selection (automap logic showcase)
   const [selectedOnboardCand, setSelectedOnboardCand] = useState<string>('EMP-001');
 
+  // Interactive states for test intake forms:
+  const [recruitFormName, setRecruitFormName] = useState('');
+  const [recruitFormRole, setRecruitFormRole] = useState('');
+  const [recruitFormDept, setRecruitFormDept] = useState('Engineering');
+  const [recruitFormType, setRecruitFormType] = useState<'Full-time' | 'Contract' | 'Consultant'>('Full-time');
+  const [recruitFormPriority, setRecruitFormPriority] = useState<'High' | 'Medium' | 'Low'>('High');
+  const [recruitFormJustification, setRecruitFormJustification] = useState('');
+
+  const [leaveFormName, setLeaveFormName] = useState('');
+  const [leaveFormDept, setLeaveFormDept] = useState('Operations');
+  const [leaveFormType, setLeaveFormType] = useState('Annual Leave');
+  const [leaveFormStart, setLeaveFormStart] = useState('');
+  const [leaveFormEnd, setLeaveFormEnd] = useState('');
+
+  const [perfFormName, setPerfFormName] = useState('');
+  const [perfFormRating, setPerfFormRating] = useState('Meets Expectations (Level 3)');
+  const [appraisalSubmissions, setAppraisalSubmissions] = useState([
+    { id: 'APP-1', name: 'Chioma Nwosu', rating: 'Exceeds Expectations (Level 5)', reviewer: 'Ada Okafor', date: '2026-06-10' },
+    { id: 'APP-2', name: 'Kelechi Egwu', rating: 'Meets Expectations (Level 3)', reviewer: 'Ada Okafor', date: '2026-06-11' }
+  ]);
+
+  const [exitFormName, setExitFormName] = useState('');
+  const [exitFormPos, setExitFormPos] = useState('');
+  const [exitFormDept, setExitFormDept] = useState('Operations');
+  const [exitFormDate, setExitFormDate] = useState('');
+
   // Trigger local leaves approve/reject status hook
   const [leaves, setLeaves] = useState([
     { id: 'L-1', name: 'Amadi Kalu', dept: 'Operations', days: 5, start: '2026-06-15', end: '2026-06-20', type: 'Annual Leave', status: 'Pending' },
@@ -57,6 +83,95 @@ export const HROperations: React.FC = () => {
 
   const updateLeaveStatus = (id: string, newStatus: string) => {
     setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
+  };
+
+  const handleRecruitmentIntakeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recruitFormName.trim() || !recruitFormRole.trim()) return;
+
+    addOnboardingTask({
+      name: recruitFormName,
+      position: recruitFormRole,
+      department: recruitFormDept,
+      status: 'Request Submitted',
+      startDate: new Date().toISOString().split('T')[0],
+      contractType: recruitFormType,
+      employeeId: `EMP-${Math.floor(100 + Math.random() * 900)}`,
+      probationEnd: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      owner: 'Ada Okafor',
+      priority: recruitFormPriority,
+      approvalStatus: 'Pending'
+    });
+
+    setRecruitFormName('');
+    setRecruitFormRole('');
+    setRecruitFormJustification('');
+    setActiveFormModal(null);
+  };
+
+  const handleLeaveIntakeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leaveFormName.trim() || !leaveFormStart || !leaveFormEnd) return;
+
+    const start = new Date(leaveFormStart);
+    const end = new Date(leaveFormEnd);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
+    const newLeave = {
+      id: `L-${leaves.length + 1}`,
+      name: leaveFormName,
+      dept: leaveFormDept,
+      days: diffDays,
+      start: leaveFormStart,
+      end: leaveFormEnd,
+      type: leaveFormType,
+      status: 'Pending'
+    };
+
+    setLeaves(prev => [newLeave, ...prev]);
+    setLeaveFormName('');
+    setLeaveFormStart('');
+    setLeaveFormEnd('');
+    setActiveFormModal(null);
+  };
+
+  const handlePerformanceIntakeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!perfFormName.trim()) return;
+
+    const newAppraisal = {
+      id: `APP-${appraisalSubmissions.length + 1}`,
+      name: perfFormName,
+      rating: perfFormRating,
+      reviewer: 'Ada Okafor',
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    setAppraisalSubmissions(prev => [newAppraisal, ...prev]);
+    setPerfFormName('');
+    setActiveFormModal(null);
+  };
+
+  const handleExitIntakeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!exitFormName.trim() || !exitFormPos.trim()) return;
+
+    const newExit = {
+      id: `EX-${exitProcesses.length + 10}`,
+      name: exitFormName,
+      pos: exitFormPos,
+      exitDate: exitFormDate || new Date().toISOString().split('T')[0],
+      dept: exitFormDept,
+      auditStatus: 'Pending Sign-off',
+      clearance: '0% Complete'
+    };
+
+    setExitProcesses(prev => [newExit, ...prev]);
+    setExitFormName('');
+    setExitFormPos('');
+    setExitFormDate('');
+    setActiveFormModal(null);
   };
 
   const handleCreateRecruitmentRequest = (e: React.FormEvent) => {
@@ -103,18 +218,18 @@ export const HROperations: React.FC = () => {
   ] as const;
 
   // Static HR Data representation
-  const employeeRecords = [
+  const [employeeRecords, setEmployeeRecords] = useState([
     { id: 'EMP-110', name: 'Emeka Obi', dept: 'Engineering', pos: 'Mechanical Engineer', email: 'e.obi@nextgen.com', contract: 'Full-time', status: 'Active' },
     { id: 'EMP-111', name: 'Fatima Umar', dept: 'Procurement', pos: 'Contract Negotiator', email: 'f.umar@nextgen.com', contract: 'Full-time', status: 'Active' },
     { id: 'EMP-112', name: 'Chioma Nwosu', dept: 'HSE', pos: 'Safety Inspector', email: 'c.nwosu@nextgen.com', contract: 'Contract', status: 'Active' },
     { id: 'EMP-113', name: 'Kelechi Egwu', dept: 'Operations', pos: 'Site Supervisor', email: 'k.egwu@nextgen.com', contract: 'Consultant', status: 'On Probation' },
     { id: 'EMP-114', name: 'Sade Adesina', dept: 'Finance', pos: 'Senior Auditor', email: 's.adesina@nextgen.com', contract: 'Full-time', status: 'Active' }
-  ];
+  ]);
 
-  const exitProcesses = [
+  const [exitProcesses, setExitProcesses] = useState([
     { id: 'EX-9', name: 'Lanre Davies', pos: 'Operations Manager', exitDate: '2026-06-30', dept: 'Projects', auditStatus: 'Pending Sign-off', clearance: '70% Complete' },
-    { id: 'EX-10', name: 'Zainab Yusuf', pos: 'HR Assistant', exitDate: '2026-07-15', dept: 'HR & Admin', auditStatus: 'Cleared', clearance: '100% Complete' }
-  ];
+    { id: 'EX-10', name: 'Zainab Yusuf', pos: 'HR Assistant', exitDate: '2026-07-15', border: 'none', dept: 'HR & Admin', auditStatus: 'Cleared', clearance: '100% Complete' }
+  ]);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
@@ -492,6 +607,24 @@ export const HROperations: React.FC = () => {
                   </Button>
                 </div>
               </div>
+
+              {appraisalSubmissions.length > 0 && (
+                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+                  <h4 className="text-xs font-extrabold text-[#7C3AED] uppercase tracking-wider border-b border-slate-100 pb-2">Completed Appraisals Log</h4>
+                  <div className="space-y-2">
+                    {appraisalSubmissions.map((app) => (
+                      <div key={app.id} className="p-2.5 bg-slate-50 rounded-lg flex justify-between items-center text-xs font-semibold">
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-bold block">{app.id} • Submitted {app.date}</span>
+                          <span className="text-slate-800 font-extrabold">{app.name}</span>
+                          <span className="text-[10.5px] text-purple-600 block mt-0.5">{app.rating}</span>
+                        </div>
+                        <span className="text-[10px] bg-purple-50 text-[#7C3AED] border border-purple-100 px-2 py-0.5 rounded font-bold uppercase">{app.reviewer}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -579,117 +712,322 @@ export const HROperations: React.FC = () => {
 
       </div>
 
-      {/* FORM PREVIEW MODALS (SIMULATION ONLY) */}
+      {/* FORM PREVIEW MODALS SECTION */}
       {/* 1. RECRUITMENT REQUEST FORM */}
-      <Modal isOpen={activeFormModal === 'recruitment'} onClose={() => setActiveFormModal(null)} title="Intake Form: Recruitment Request">
-        <div className="space-y-4">
-          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
-          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
-            
+      <Modal isOpen={activeFormModal === 'recruitment'} onClose={() => setActiveFormModal(null)} title="Intake Form: Recruitment Request" footer={null}>
+        <form onSubmit={handleRecruitmentIntakeSubmit} className="space-y-4 font-bold text-xs">
+          <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+          
+          <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
             <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Target Role/Position Title</label>
-              <input type="text" disabled placeholder="e.g. Senior Piping Specialist" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
+              <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Candidate Full Name</label>
+              <input 
+                type="text" 
+                required 
+                value={recruitFormName} 
+                onChange={(e) => setRecruitFormName(e.target.value)} 
+                placeholder="e.g. Chinedu Alao" 
+                className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600" 
+              />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Budget Allocation Range</label>
-              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
-                <option>Tier 1 ($50k - $80k)</option>
-                <option>Tier 2 ($80k - $120k)</option>
-              </select>
+              <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Target Role/Position Title</label>
+              <input 
+                type="text" 
+                required 
+                value={recruitFormRole} 
+                onChange={(e) => setRecruitFormRole(e.target.value)} 
+                placeholder="e.g. Senior Piping Specialist" 
+                className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600" 
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Department</label>
+                <select 
+                  value={recruitFormDept} 
+                  onChange={(e) => setRecruitFormDept(e.target.value)} 
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Procurement">Procurement</option>
+                  <option value="HSE">HSE</option>
+                  <option value="Operations">Operations</option>
+                  <option value="HR & Admin">HR & Admin</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Priority</label>
+                <select 
+                  value={recruitFormPriority} 
+                  onChange={(e) => setRecruitFormPriority(e.target.value as any)} 
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                >
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Contract Type</label>
+                <select 
+                  value={recruitFormType} 
+                  onChange={(e) => setRecruitFormType(e.target.value as any)} 
+                  className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                >
+                  <option value="Full-time">Full-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Consultant">Consultant</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Budget Allocation</label>
+                <select className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none">
+                  <option>Tier 1 ($50k - $80k)</option>
+                  <option>Tier 2 ($80k - $120k)</option>
+                  <option>Tier 3 ($120k+)</option>
+                </select>
+              </div>
             </div>
 
             <div>
               <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Justification Memo</label>
-              <textarea disabled rows={3} placeholder="Please provide hiring context..." className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white resize-none" />
-            </div>
-
-            <p className="text-[10px] text-slate-405 font-bold italic">
-              When submitted by managers, this form automatically creates a "Request Submitted" task in the HR Recruitment Space.
-            </p>
-          </div>
-        </div>
-      </Modal>
-
-      {/* 2. LEAVE APPLICATION FORM */}
-      <Modal isOpen={activeFormModal === 'leave'} onClose={() => setActiveFormModal(null)} title="Intake Form: Leave Application">
-        <div className="space-y-4">
-          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
-          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
-            
-            <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Applicant Name</label>
-              <input type="text" disabled placeholder="e.g. Amadi Kalu" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Start Date</label>
-                <input type="date" disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">End Date</label>
-                <input type="date" disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Leave Category</label>
-              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
-                <option>Annual Leave</option>
-                <option>Casual Leave</option>
-                <option>Sick Leave</option>
-              </select>
+              <textarea 
+                rows={2} 
+                value={recruitFormJustification} 
+                onChange={(e) => setRecruitFormJustification(e.target.value)} 
+                placeholder="Provide hiring justification context..." 
+                className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white resize-none focus:outline-none focus:ring-1 focus:ring-indigo-600" 
+              />
             </div>
           </div>
-        </div>
-      </Modal>
 
-      {/* 3. PERFORMANCE REVIEW FORM */}
-      <Modal isOpen={activeFormModal === 'performance'} onClose={() => setActiveFormModal(null)} title="Intake Form: HOD Appraisal Submit">
-        <div className="space-y-4">
-          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
-          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Reviewee / Team Member</label>
-              <input type="text" disabled placeholder="e.g. Kelechi Egwu" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Core Capability Rating</label>
-              <select disabled className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white">
-                <option>Exceeds Expectations (Level 5)</option>
-                <option>Meets Expectations (Level 3)</option>
-              </select>
-            </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="outline" size="sm" type="button" onClick={() => setActiveFormModal(null)}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" type="submit">
+              Submit Intake Form
+            </Button>
           </div>
-        </div>
+        </form>
       </Modal>
-
-      {/* 4. EXIT CLEARANCE FORM */}
-      <Modal isOpen={activeFormModal === 'exit'} onClose={() => setActiveFormModal(null)} title="Intake Form: Exit & Offboard Clearance Check">
-        <div className="space-y-4">
-          <Badge variant="indigo">ClickUp Form Embed Preview</Badge>
-          <div className="border border-slate-150 bg-slate-50/55 p-4 rounded-xl text-slate-700 text-xs font-semibold leading-relaxed space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Departing Employee Name</label>
-              <input type="text" disabled placeholder="e.g. Zainab Yusuf" className="w-full text-xs font-medium p-2 border border-slate-200 rounded-lg bg-white" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-[10px] font-bold uppercase text-slate-400">Handover Verifications Required</label>
-              <div className="space-y-1.5 font-bold">
-                <div className="flex items-center gap-2"><input type="checkbox" disabled checked /> IT Access Revoked</div>
-                <div className="flex items-center gap-2"><input type="checkbox" disabled checked /> Company Assets returned & signed</div>
-                <div className="flex items-center gap-2"><input type="checkbox" disabled /> Final Salary accounts settlement</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
+ 
+       {/* 2. LEAVE APPLICATION FORM */}
+       <Modal isOpen={activeFormModal === 'leave'} onClose={() => setActiveFormModal(null)} title="Intake Form: Leave Application" footer={null}>
+         <form onSubmit={handleLeaveIntakeSubmit} className="space-y-4 font-bold text-xs">
+           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+ 
+           <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
+             <div>
+               <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Applicant Name</label>
+               <input 
+                 type="text" 
+                 required 
+                 value={leaveFormName} 
+                 onChange={(e) => setLeaveFormName(e.target.value)} 
+                 placeholder="e.g. Amadi Kalu" 
+                 className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600" 
+               />
+             </div>
+ 
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Department</label>
+                 <select 
+                   value={leaveFormDept} 
+                   onChange={(e) => setLeaveFormDept(e.target.value)} 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                 >
+                   <option value="Operations">Operations</option>
+                   <option value="Engineering">Engineering</option>
+                   <option value="Procurement">Procurement</option>
+                   <option value="HSE">HSE</option>
+                   <option value="HR & Admin">HR & Admin</option>
+                 </select>
+               </div>
+ 
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Leave Category</label>
+                 <select 
+                   value={leaveFormType} 
+                   onChange={(e) => setLeaveFormType(e.target.value)} 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                 >
+                   <option value="Annual Leave">Annual Leave</option>
+                   <option value="Casual Leave">Casual Leave</option>
+                   <option value="Sick Leave">Sick Leave</option>
+                   <option value="Maternity Leave">Maternity Leave</option>
+                 </select>
+               </div>
+             </div>
+ 
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Start Date</label>
+                 <input 
+                   type="date" 
+                   required 
+                   value={leaveFormStart} 
+                   onChange={(e) => setLeaveFormStart(e.target.value)} 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none" 
+                 />
+               </div>
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">End Date</label>
+                 <input 
+                   type="date" 
+                   required 
+                   value={leaveFormEnd} 
+                   onChange={(e) => setLeaveFormEnd(e.target.value)} 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none" 
+                 />
+               </div>
+             </div>
+           </div>
+ 
+           <div className="flex items-center justify-end gap-3 pt-2">
+             <Button variant="outline" size="sm" type="button" onClick={() => setActiveFormModal(null)}>
+               Cancel
+             </Button>
+             <Button variant="primary" size="sm" type="submit">
+               Submit Leave Request
+             </Button>
+           </div>
+         </form>
+       </Modal>
+ 
+       {/* 3. PERFORMANCE REVIEW FORM */}
+       <Modal isOpen={activeFormModal === 'performance'} onClose={() => setActiveFormModal(null)} title="Intake Form: HOD Appraisal Submit" footer={null}>
+         <form onSubmit={handlePerformanceIntakeSubmit} className="space-y-4 font-bold text-xs">
+           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+ 
+           <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
+             <div>
+               <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Reviewee / Team Member Name</label>
+               <input 
+                 type="text" 
+                 required 
+                 value={perfFormName} 
+                 onChange={(e) => setPerfFormName(e.target.value)} 
+                 placeholder="e.g. Kelechi Egwu" 
+                 className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none" 
+               />
+             </div>
+ 
+             <div>
+               <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Core Capability Rating</label>
+               <select 
+                 value={perfFormRating} 
+                 onChange={(e) => setPerfFormRating(e.target.value)} 
+                 className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+               >
+                 <option value="Exceeds Expectations (Level 5)">Exceeds Expectations (Level 5)</option>
+                 <option value="Meets Expectations (Level 3)">Meets Expectations (Level 3)</option>
+                 <option value="Needs Improvement (Level 1)">Needs Improvement (Level 1)</option>
+               </select>
+             </div>
+           </div>
+ 
+           <div className="flex items-center justify-end gap-3 pt-2">
+             <Button variant="outline" size="sm" type="button" onClick={() => setActiveFormModal(null)}>
+               Cancel
+             </Button>
+             <Button variant="primary" size="sm" type="submit">
+               Submit Appraisal
+             </Button>
+           </div>
+         </form>
+       </Modal>
+ 
+       {/* 4. EXIT CLEARANCE FORM */}
+       <Modal isOpen={activeFormModal === 'exit'} onClose={() => setActiveFormModal(null)} title="Intake Form: Exit & Offboard Clearance Check" footer={null}>
+         <form onSubmit={handleExitIntakeSubmit} className="space-y-4 font-bold text-xs">
+           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+ 
+           <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
+             <div>
+               <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Departing Employee Name</label>
+               <input 
+                 type="text" 
+                 required 
+                 value={exitFormName} 
+                 onChange={(e) => setExitFormName(e.target.value)} 
+                 placeholder="e.g. Zainab Yusuf" 
+                 className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none" 
+               />
+             </div>
+ 
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Position / Role</label>
+                 <input 
+                   type="text" 
+                   required 
+                   value={exitFormPos} 
+                   onChange={(e) => setExitFormPos(e.target.value)} 
+                   placeholder="e.g. HR Assistant" 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none" 
+                 />
+               </div>
+ 
+               <div>
+                 <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Department</label>
+                 <select 
+                   value={exitFormDept} 
+                   onChange={(e) => setExitFormDept(e.target.value)} 
+                   className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none"
+                 >
+                   <option value="HR & Admin">HR & Admin</option>
+                   <option value="Operations">Operations</option>
+                   <option value="Engineering">Engineering</option>
+                   <option value="Procurement">Procurement</option>
+                   <option value="HSE">HSE</option>
+                 </select>
+               </div>
+             </div>
+ 
+             <div>
+               <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">Exit Target Date</label>
+               <input 
+                 type="date" 
+                 required 
+                 value={exitFormDate} 
+                 onChange={(e) => setExitFormDate(e.target.value)} 
+                 className="w-full text-xs font-semibold p-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none font-semibold" 
+               />
+             </div>
+ 
+             <div className="space-y-2">
+               <label className="block text-[10px] font-bold uppercase text-slate-400">Handover Verifications Status</label>
+               <div className="space-y-1.5 font-semibold text-slate-600">
+                 <div className="flex items-center gap-2"><input type="checkbox" checked disabled className="rounded text-indigo-600" /> IT Access Revoked</div>
+                 <div className="flex items-center gap-2"><input type="checkbox" checked disabled className="rounded text-indigo-600" /> Company Assets returned & signed</div>
+                 <div className="flex items-center gap-2"><input type="checkbox" disabled className="rounded" /> Final Salary accounts settlement (SLA Pending)</div>
+               </div>
+             </div>
+           </div>
+ 
+           <div className="flex items-center justify-end gap-3 pt-2">
+             <Button variant="outline" size="sm" type="button" onClick={() => setActiveFormModal(null)}>
+               Cancel
+             </Button>
+             <Button variant="primary" size="sm" type="submit">
+               Submit Exit Application
+             </Button>
+           </div>
+         </form>
+       </Modal>
 
       {/* LOG ONBOARDING REQUEST MODAL (Sandbox Action) */}
-      <Modal isOpen={addCandModal} onClose={() => setAddCandModal(false)} title="Simulate Candidate Submission">
+      <Modal isOpen={addCandModal} onClose={() => setAddCandModal(false)} title="Simulate Candidate Submission" footer={null}>
         <form onSubmit={handleCreateRecruitmentRequest} className="space-y-4 font-bold text-xs">
           <div>
             <label className="block text-slate-600 mb-1 uppercase text-[10px]">Candidate Full Name</label>

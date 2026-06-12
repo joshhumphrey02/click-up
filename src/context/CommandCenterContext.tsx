@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   UserRole,
   Task,
@@ -96,6 +97,15 @@ export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ child
     };
     setNotificationsList(prev => [newNotif, ...prev]);
     setActiveNotification(text);
+    
+    // Display using sonner toast
+    if (text.toLowerCase().includes('critical') || text.toLowerCase().includes('overdue') || text.toLowerCase().includes('alert') || text.toLowerCase().includes('failed') || text.toLowerCase().includes('warning')) {
+      toast.error(text, { duration: 5000 });
+    } else if (text.toLowerCase().includes('success') || text.toLowerCase().includes('approved') || text.toLowerCase().includes('grant') || text.toLowerCase().includes('complete')) {
+      toast.success(text);
+    } else {
+      toast.info(text);
+    }
   };
 
   const clearNotifications = () => {

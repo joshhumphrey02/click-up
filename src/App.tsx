@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { CommandCenterProvider } from './context/CommandCenterContext';
 import { AppLayout } from './components/layout/AppLayout';
 
@@ -36,6 +37,7 @@ export default function App() {
   return (
     <CommandCenterProvider>
       <HashRouter>
+        <Toaster richColors position="top-right" closeButton />
         <Suspense fallback={<ScreenSpinner />}>
           <Routes>
             <Route element={<AppLayout />}>

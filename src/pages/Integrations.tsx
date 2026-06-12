@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   Link2,
   CheckCircle2,
@@ -60,11 +61,13 @@ export const Integrations: React.FC = () => {
 
   // Active Integration Navigation Tabs
   const [activeTab, setActiveTab] = useState<'sheets' | 'calendar_drive' | 'whatsapp'>('sheets');
-  const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+    if (msg.toLowerCase().includes('error')) {
+      sonnerToast.error(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   // Google Calendar Integration Mock States
@@ -449,14 +452,6 @@ export const Integrations: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans text-slate-700 animate-fade-in">
-      
-      {/* Toast popup */}
-      {toast && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-indigo-500 text-white p-4.5 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toast}</span>
-        </div>
-      )}
 
       {/* Main Header Block */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">

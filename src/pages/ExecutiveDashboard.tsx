@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
 import {
   ResponsiveContainer,
   PieChart,
@@ -55,7 +56,7 @@ export const ExecutiveDashboard: React.FC = () => {
     currentRole
   } = useCommandCenter();
 
-  const [toast, setToast] = useState<string | null>(null);
+  // Toast state managed by Sonner
 
   // Dashboard Tier selector state
   // Tiers: C-Suite Executive Overview, Department Manager Workloads, Team member/Operational view
@@ -73,8 +74,11 @@ export const ExecutiveDashboard: React.FC = () => {
   const criticalIncidentsCount = hseIncidents.filter(i => i.riskLevel === 'Critical' || i.status === 'Escalated').length;
 
   const triggerToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3500);
+    if (msg.toLowerCase().includes('decline') || msg.toLowerCase().includes('reject') || msg.toLowerCase().includes('error') || msg.toLowerCase().includes('failed')) {
+      sonnerToast.error(msg);
+    } else {
+      sonnerToast.success(msg);
+    }
   };
 
   // Recharts Donut Data (Strategic task completion rate across the tenant)
@@ -147,13 +151,7 @@ export const ExecutiveDashboard: React.FC = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans text-slate-705">
       
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-4 right-4 bg-slate-900 border border-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 animate-fade-in text-xs font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {/* Toast notifications powered by sonner */}
 
       {/* Top Warning for role-based restricted access previews */}
       {currentRole !== 'Executive Management' && (
