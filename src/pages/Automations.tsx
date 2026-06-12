@@ -36,6 +36,7 @@ export const Automations: React.FC = () => {
   const [runningDemo, setRunningDemo] = useState(false);
   const [demoStep, setDemoStep] = useState(0);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [activeScenarioId, setActiveScenarioId] = useState('scen-hse');
 
   const showToast = (msg: string) => {
     if (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('fail')) {
@@ -44,6 +45,192 @@ export const Automations: React.FC = () => {
       sonnerToast.success(msg);
     }
   };
+
+  // Presentation Scenarios definitions for testing
+  const presentationScenarios = [
+    {
+      id: 'scen-hse',
+      name: 'HSE Emergency Breach',
+      badge: 'Safety Alert',
+      color: 'rose',
+      ruleId: 'RUL-801',
+      description: 'Critical safety breach triggering senior director and board escalations.',
+      icon: ShieldAlert,
+      steps: [
+        {
+          title: 'Trigger: HSE Incident Filed (Critical Severity)',
+          description: 'A safety officer files an incident with coordinate telemetry and marks severity as "Critical".'
+        },
+        {
+          title: 'Action 1: Dispatch cellular push message to leadership',
+          description: 'Sends immediate direct SMS detailing incident coordinates to CEO Daniel Eze and HSE Committee.'
+        },
+        {
+          title: 'Action 2: Log Emergency JVC Resolution task',
+          description: 'Creates a priority task on the Joint Venture Committee dashboard to mandate instant mitigation.'
+        }
+      ],
+      stepToasts: [
+        "Evaluating hazard incident report & matched HSE Critical safeguards.",
+        "Dispatched Direct Push SMS alert to CEO Daniel Eze's device!",
+        "HSE Safeguard Complete: Logged emergency Board Action Checklist."
+      ],
+      consoleData: (running: boolean, step: number) => ({
+        activeRecipeId: 'RUL-801',
+        triggerSource: 'HSE_INCIDENT_FORM',
+        isRunning: running,
+        matchedCondition: step >= 2,
+        recipientsNotified: step >= 3 ? ['Daniel Eze (CEO)', 'HSE Committee Chair'] : [],
+        loggedActionItems: step >= 4 ? ['JVC Board Checklist #801'] : [],
+        telemetryStatus: step >= 2 ? 'Lekki-Grid-C_ISOLATED' : 'LISTENING'
+      }),
+      modalOutcome: {
+        alertTitle: 'SAFETY BREACH MITIGATION PROTOCOL COMPLETED',
+        alertDesc: 'Cron-watcher evaluated safety coordinates and dispatched emergency communication in exact statutory order.',
+        action1: 'SMS dispatch validated: "Daniel, Critical Scaffold structural sag reported at Lekki Site Grid C. Safety tag attached."',
+        action2: 'JVC checklist generated: Emergency review scheduled for JV Board under ticket JVC-HSE-901.',
+        icon1: Smartphone,
+        icon2: ListTodo
+      }
+    },
+    {
+      id: 'scen-procure',
+      name: 'Procurement Ceiling Bypass',
+      badge: 'Finance Ceilings',
+      color: 'emerald',
+      ruleId: 'RUL-802',
+      description: 'High-value approval requests auto-bypassing bottlenecks directly to CEO queue.',
+      icon: Cpu,
+      steps: [
+        {
+          title: 'Trigger: Heavy Equipment Requisition Submitted',
+          description: 'Procurement officer requests ₦15,400,000 for heavy turbine spares.'
+        },
+        {
+          title: 'Action 1: Bypass intermediate queues & lock branch routing',
+          description: 'Halts typical manager workflows to avoid administrative delays for critical spares.'
+        },
+        {
+          title: 'Action 2: Inject docket into main CEO Approval Queue',
+          description: 'Places request securely right at the top of Daniel Eze\'s executive approval docket.'
+        }
+      ],
+      stepToasts: [
+        "Evaluating Purchase order value & exceeded ₦10M threshold.",
+        "Middling administration bypassed. Direct router activated.",
+        "Procurement Complete: Transferred Priority Docket to CEO Cryptographic queue."
+      ],
+      consoleData: (running: boolean, step: number) => ({
+        activeRecipeId: 'RUL-802',
+        triggerSource: 'REQUISITION_PORTAL',
+        isRunning: running,
+        matchedCondition: step >= 2,
+        recipientsNotified: step >= 3 ? ['Daniel Eze (CEO)', 'Finance Director'] : [],
+        loggedActionItems: step >= 4 ? ['Executive Seal Queue Entry #154'] : [],
+        overrideBypassApplied: step >= 2 ? 'TRUE' : 'FALSE'
+      }),
+      modalOutcome: {
+        alertTitle: 'CEILING BYPASS ROUTING SUCCESSFUL',
+        alertDesc: 'Financial safety triggers monitored the ₦15.4M amount and completed instant vertical escalation to bypass administrative delay.',
+        action1: 'Branch routing locked: Traditional middle-manager approval steps deactivated for purchase speed.',
+        action2: 'CEO Dashboard entry logged: Secure docket placed directly in Daniel Eze\'s executive inbox with High Priority.',
+        icon1: Zap,
+        icon2: ListTodo
+      }
+    },
+    {
+      id: 'scen-sla',
+      name: 'SLA Breach Safeguard',
+      badge: 'SLA Lifecycle',
+      color: 'amber',
+      ruleId: 'RUL-803',
+      description: 'Stale corporate collaboration tickets escalated with department rating fines.',
+      icon: Clock,
+      steps: [
+        {
+          title: 'Trigger: Ticket Pending > 48 Business Hours',
+          description: 'Corporate partnership ticket remains unresolved for 52 consecutive business hours.'
+        },
+        {
+          title: 'Action 1: Dispatch warning escalation summary to HOD',
+          description: 'Triggers Direct Bell Alert and SLA Breach Summary to HOD Ada Okafor.'
+        },
+        {
+          title: 'Action 2: Degrade department response efficiency score',
+          description: 'Applies automated 5% SLA performance index penalty directly into weekly department dashboard stats.'
+        }
+      ],
+      stepToasts: [
+        "Timer analysis detected SLA breach > 4 business days.",
+        "Dispatched immediate breach report & Bell Alarm alert to HOD Ada Okafor.",
+        "SLA Complete: Response efficiency index score docked by 5%."
+      ],
+      consoleData: (running: boolean, step: number) => ({
+        activeRecipeId: 'RUL-803',
+        triggerSource: 'TICKET_TICKER',
+        isRunning: running,
+        matchedCondition: step >= 2,
+        recipientsNotified: step >= 3 ? ['Ada Okafor (HOD)', 'Partnerships Team'] : [],
+        loggedActionItems: step >= 4 ? ['SLA Response Index Adjustment -5%'] : [],
+        slaTicketTimer: '52 HOURS (BREACH)'
+      }),
+      modalOutcome: {
+        alertTitle: 'SLA BREACH SAFEGUARD EXECUTED',
+        alertDesc: 'SLA monitoring rules flagged the critical milestone breach and triggered automatic departmental warnings.',
+        action1: 'HOD alert completed: Dispatched direct system notification to Ada Okafor.',
+        action2: 'Index penalty filed: Department weekly efficiency tracker adjusted; ticket marked "Escalated to Director".',
+        icon1: BellRing,
+        icon2: Clock
+      }
+    },
+    {
+      id: 'scen-onboard',
+      name: 'Auto-Onboarding Suite',
+      badge: 'HR Automation',
+      color: 'blue',
+      ruleId: 'RUL-804',
+      description: 'Instant sandbox profiling, handbook mailing, and hardware ordering upon sign.',
+      icon: Mail,
+      steps: [
+        {
+          title: 'Trigger: Candidate Signed Contract (Hired status)',
+          description: 'HR systems register a fully countersigned executive job offer contract.'
+        },
+        {
+          title: 'Action 1: Initialize custom ClickUp Onboarding Folder',
+          description: 'Automatically provisions a personal training profile space and Q2 Training playbook.'
+        },
+        {
+          title: 'Action 2: File Hardware Requisition in Procurement',
+          description: 'Creates standard modern hardware package ticket in the purchasing queue with no manual input.'
+        }
+      ],
+      stepToasts: [
+        "State-watcher registered countersigned HR contract (Hired).",
+        "Created custom candidate workspace folder on ClickUp.",
+        "Onboarding Complete: Dispatched digital Q2 Handbook & Hardware request."
+      ],
+      consoleData: (running: boolean, step: number) => ({
+        activeRecipeId: 'RUL-854',
+        triggerSource: 'CONTRACTS_LEDGER',
+        isRunning: running,
+        matchedCondition: step >= 2,
+        recipientsNotified: step >= 3 ? ['Candidate (SMS Hello)', 'HR Ops Team'] : [],
+        loggedActionItems: step >= 4 ? ['ClickUp Onboarding Workspace Directory', 'Hardware Ticket IP-290'] : [],
+        candidateContractStatus: 'COUNTERSIGNED'
+      }),
+      modalOutcome: {
+        alertTitle: 'WORKFORCE INTRO SEQUENCE COMPLETED',
+        alertDesc: 'Seamless HR contract webhook caught the "Hired" state transition and provisioned the starter suite instantly.',
+        action1: 'Workspace initialized: Personalized onboarding folder structured inside corporate ClickUp Space.',
+        action2: 'Requisition triggered: Automatic Procurement order submitted for standardized corporate laptop kit.',
+        icon1: CheckCircle2,
+        icon2: ListTodo
+      }
+    }
+  ];
+
+  const currentScenario = presentationScenarios.find(s => s.id === activeScenarioId) || presentationScenarios[0];
 
   // Rule categories and recipes
   const rulesList: AutomationRuleItem[] = [
@@ -112,19 +299,19 @@ export const Automations: React.FC = () => {
     // Timeline steps simulation
     setTimeout(() => {
       setDemoStep(2);
-      showToast("Step 1 Complete: Severity Evaluation matched CRITICAL rules.");
+      showToast(`Step 1: ${currentScenario.stepToasts[0]}`);
     }, 1500);
 
     setTimeout(() => {
       setDemoStep(3);
-      showToast("Step 2 Complete: Dispatched CEO Push Notification SMS!");
+      showToast(`Step 2: ${currentScenario.stepToasts[1]}`);
     }, 3000);
 
     setTimeout(() => {
       setDemoStep(4);
       setRunningDemo(false);
       setDemoModalOpen(true);
-      showToast("Step 3 Complete: Joint Venture Action Item logged.");
+      showToast(`Step 3: ${currentScenario.stepToasts[2]}`);
     }, 4500);
   };
 
@@ -211,6 +398,47 @@ export const Automations: React.FC = () => {
           </Button>
         </CardHeader>
 
+        {/* SELECTOR FOR DIFFERENT SCENARIOS */}
+        <div className="px-6 pt-4 pb-3 border-b border-indigo-100/50 bg-slate-50/40 flex flex-col gap-2">
+          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block">Select Presentation Demo Scenario:</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {presentationScenarios.map(sc => {
+              const IconComp = sc.icon;
+              const isSelected = activeScenarioId === sc.id;
+              return (
+                <button
+                  key={sc.id}
+                  onClick={() => {
+                    if (runningDemo) return;
+                    setActiveScenarioId(sc.id);
+                    setDemoStep(0);
+                  }}
+                  disabled={runningDemo}
+                  className={`flex flex-col p-3 rounded-xl border text-left transition relative cursor-pointer select-none ${
+                    isSelected
+                      ? 'bg-white border-[#7C3AED] shadow-xs ring-2 ring-[#7C3AED]/10'
+                      : 'bg-white/40 border-slate-200 hover:bg-white hover:border-slate-300'
+                  } ${runningDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1 justify-between">
+                    <IconComp className={`h-4 w-4 ${isSelected ? 'text-[#7C3AED]' : 'text-slate-500'}`} />
+                    <span className={`text-[9px] font-extrabold tracking-wide uppercase px-2 py-0.5 rounded-full ${
+                      sc.color === 'rose' ? 'bg-rose-50 text-rose-700 border border-rose-200/50' :
+                      sc.color === 'emerald' ? 'bg-emerald-50 text-emerald-700 border border-emerald-250/50' :
+                      sc.color === 'amber' ? 'bg-amber-50 text-amber-700 border border-amber-250/50' :
+                      'bg-blue-50 text-blue-700 border border-blue-200/50'
+                    }`}>
+                      {sc.badge}
+                    </span>
+                  </div>
+                  <span className="text-xs font-black text-slate-800 leading-snug truncate">{sc.name}</span>
+                  <span className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">{sc.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <CardContent className="p-6 grid md:grid-cols-12 gap-8 items-start">
           
           {/* Timeline steps progress (5/12) */}
@@ -218,43 +446,23 @@ export const Automations: React.FC = () => {
             <h4 className="text-[10px] uppercase font-black text-slate-450 tracking-wider">Simulated Rule Recipe Step Sequence</h4>
             
             <div className="relative border-l-2 border-indigo-150 pl-5 space-y-6">
-              
-              <div className="relative">
-                <span className={`absolute -left-[26px] top-0.5 w-3 h-3 rounded-full border border-white transition-all ${
-                  demoStep >= 1 ? 'bg-indigo-600 ring-2 ring-[#7C3AED]/20Scale' : 'bg-slate-300'
-                }`} />
-                <p className={`font-extrabold ${demoStep >= 1 ? 'text-[#7C3AED]' : 'text-slate-400'}`}>
-                  Trigger: HSE Incident Filed (Critical Severity)
-                </p>
-                <p className="text-[10px] text-slate-400 font-semibold leading-normal mt-0.5">
-                  When a safety officer files an incident with and chooses a risk evaluation of "Critical".
-                </p>
-              </div>
-
-              <div className="relative">
-                <span className={`absolute -left-[26px] top-0.5 w-3 h-3 rounded-full border border-white transition-all ${
-                  demoStep >= 2 ? 'bg-indigo-600' : 'bg-slate-300'
-                }`} />
-                <p className={`font-extrabold ${demoStep >= 2 ? 'text-[#7C3AED]' : 'text-slate-400'}`}>
-                  Action 1: Dispatch push SMS alert to CEO
-                </p>
-                <p className="text-[10px] text-slate-400 font-semibold leading-normal mt-0.5">
-                  Sends an instant statutory push message detailing coordinates and description directly to director Daniel Eze.
-                </p>
-              </div>
-
-              <div className="relative">
-                <span className={`absolute -left-[26px] top-0.5 w-3 h-3 rounded-full border border-white transition-all ${
-                  demoStep >= 3 ? 'bg-indigo-600' : 'bg-slate-300'
-                }`} />
-                <p className={`font-extrabold ${demoStep >= 3 ? 'text-[#7C3AED]' : 'text-slate-400'}`}>
-                  Action 2: Log emergency joint-venture action task
-                </p>
-                <p className="text-[10px] text-slate-400 font-semibold leading-normal mt-0.5">
-                  Creates an actionable task on the Executive approvals and Board minutes logs immediately.
-                </p>
-              </div>
-
+              {currentScenario.steps.map((st, idx) => {
+                const stepNum = idx + 1;
+                const isActive = demoStep >= stepNum;
+                return (
+                  <div key={idx} className="relative">
+                    <span className={`absolute -left-[26px] top-0.5 w-3 h-3 rounded-full border border-white transition-all ${
+                      isActive ? 'bg-indigo-600 ring-2 ring-[#7C3AED]/20' : 'bg-slate-300'
+                    }`} />
+                    <p className={`font-extrabold transition-colors ${isActive ? 'text-[#7C3AED]' : 'text-slate-400'}`}>
+                      {st.title}
+                    </p>
+                    <p className="text-[10px] text-slate-450 font-semibold leading-normal mt-0.5">
+                      {st.description}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -269,8 +477,8 @@ export const Automations: React.FC = () => {
 
             <div className="space-y-3 font-semibold text-[11px] leading-relaxed">
               <p className="text-slate-500">// Real-time state telemetry of active sandbox trigger</p>
-              <div className="p-3 bg-slate-950 rounded border border-slate-800/80 text-emerald-400 font-medium">
-                {`{\n  activeRecipeId: "RUL-801",\n  triggerSource: "HSE_INCIDENT_FORM",\n  isRunning: ${runningDemo},\n  matchedCondition: ${demoStep >= 2 ? 'true' : 'false'},\n  notificationsSent: ${demoStep >= 3 ? '1 (Target: Daniel Eze CEO)' : '0'},\n  loggedActionItems: ${demoStep >= 4 ? '1 (Target: JVC Board)' : '0'}\n}`}
+              <div className="p-3 bg-slate-950 rounded border border-slate-800/80 text-emerald-400 font-medium whitespace-pre">
+                {JSON.stringify(currentScenario.consoleData(runningDemo, demoStep), null, 2)}
               </div>
             </div>
           </div>
@@ -340,31 +548,43 @@ export const Automations: React.FC = () => {
         </div>
       </Card>
 
-      {/* DEMO COMPLETE MODAL SCREEN FOR CRITICAL INCIDENT */}
-      <Modal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} title="✓ Automation Engine Demonstration Complete">
-        <div className="space-y-4 text-xs font-bold text-slate-750 leading-relaxed p-1 select-none">
+      {/* DEMO COMPLETE MODAL SCREEN FOR CURRENT SCENARIO */}
+      <Modal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} title={`✓ ${currentScenario.name} Demonstration Complete`}>
+        <div className="space-y-4 text-xs font-bold text-slate-750 leading-relaxed p-1 select-none font-sans">
           <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-850 flex gap-2.5">
             <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <strong>AUTOMATED PROTOCOL COMPLETED SUCCESSFULLY</strong>
+              <strong className="uppercase">{currentScenario.modalOutcome.alertTitle}</strong>
               <p className="text-[10px] text-emerald-700 mt-1 max-w-sm">
-                Safety trigger successfully matched. Chronological runbook actions dispatched in exact sequence based on policy.
+                {currentScenario.modalOutcome.alertDesc}
               </p>
             </div>
           </div>
 
           <div className="p-4 rounded-xl border border-indigo-150 bg-indigo-50/20 space-y-3">
-            <span className="text-[9px] font-black text-indigo-705 uppercase block mb-1">Executed Sequence Details:</span>
+            <span className="text-[9px] font-black text-indigo-755 uppercase block mb-1">Executed Sequence Details:</span>
             
-            <div className="flex items-center gap-2">
-              <Smartphone className="h-4.5 w-4.5 text-[#7C3AED]" />
-              <p className="text-[11px] text-slate-700 font-bold"><strong>Action 1 SMS dispatched:</strong> "Daniel, Critical Scaffold structural sag reported at Lekki Site Grid C. Safety tag attached."</p>
-            </div>
+            {(() => {
+              const Icon1 = currentScenario.modalOutcome.icon1;
+              const Icon2 = currentScenario.modalOutcome.icon2;
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2.5">
+                    <Icon1 className="h-4.5 w-4.5 text-[#7C3AED] shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-slate-705 font-bold leading-normal">
+                      <strong>Action 1:</strong> {currentScenario.modalOutcome.action1}
+                    </p>
+                  </div>
 
-            <div className="flex items-center gap-2 border-t border-slate-200/50 pt-2.5">
-              <ListTodo className="h-4.5 w-4.5 text-[#7C3AED]" />
-              <p className="text-[11px] text-slate-800 font-black"><strong>Action 2 JVC task enqueued:</strong> logged emergency milestone review task on Joint Venture Committee dashboard under ref: JVC-HSE-901.</p>
-            </div>
+                  <div className="flex items-start gap-2.5 border-t border-slate-200/50 pt-2.5">
+                    <Icon2 className="h-4.5 w-4.5 text-[#7C3AED] shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-slate-755 font-black leading-normal">
+                      <strong>Action 2:</strong> {currentScenario.modalOutcome.action2}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           <p className="text-[10px] text-slate-400 italic">This demo mirrors real-time actions execution inside our configured ClickUp operations workspace after implementation.</p>
