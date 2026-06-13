@@ -87,12 +87,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ id }) => {
     >
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-3 border-b border-white/10">
-        <div className="w-8 h-8 bg-[#7C3AED] rounded flex items-center justify-center text-white font-extrabold animate-pulse">
-          CU
+        <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-black animate-pulse">
+          AGR
         </div>
         <span className="font-bold text-xs uppercase leading-tight text-white tracking-wider">
-          ClickUp<br />
-          <span className="text-blue-400 font-extrabold text-[10px]">Operations Hub</span>
+          ATMA GLOBAL<br />
+          <span className="text-blue-400 font-extrabold text-[9px]">RESOURCES LIMITED</span>
         </span>
       </div>
 

@@ -62,12 +62,36 @@ interface CommandCenterContextType {
   setActiveNotification: (msg: string | null) => void;
   notificationsList: { id: string; text: string; time: string; read: boolean }[];
   clearNotifications: () => void;
+  isLoggedIn: boolean;
+  login: (role: UserRole) => void;
+  logout: () => void;
 }
 
 const CommandCenterContext = createContext<CommandCenterContextType | undefined>(undefined);
 
 export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentRole, setRole] = useState<UserRole>('Executive Management');
+  const [currentRole, setRoleState] = useState<UserRole>(() => {
+    return (localStorage.getItem('hub_user_role') as UserRole) || 'Executive Management';
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem('hub_logged_in') === 'true';
+  });
+
+  const setRole = (role: UserRole) => {
+    setRoleState(role);
+    localStorage.setItem('hub_user_role', role);
+  };
+
+  const login = (role: UserRole) => {
+    setRole(role);
+    setIsLoggedIn(true);
+    localStorage.setItem('hub_logged_in', 'true');
+  };
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('hub_logged_in');
+  };
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>(initialOnboardingTasks);
   const [purchaseRequests, setPurchaseRequests] = useState<PurchaseRequest[]>(initialPurchaseRequests);
@@ -384,7 +408,10 @@ export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ child
       activeNotification,
       setActiveNotification,
       notificationsList,
-      clearNotifications
+      clearNotifications,
+      isLoggedIn,
+      login,
+      logout
     }}>
       {children}
     </CommandCenterContext.Provider>

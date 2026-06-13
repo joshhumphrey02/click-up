@@ -47,7 +47,7 @@ export const Home: React.FC = () => {
   // Summary widgets meeting the requested list
   const summaryCards = [
     { title: '8 Core Operational Systems', val: 'Fully Digitized', desc: 'Active aligned stations for role' },
-    { title: 'Department-Specific Workflows', val: 'Tailored Spaces', desc: 'Pre-configured ClickUp folders' },
+    { title: 'Department-Specific Workflows', val: 'Tailored Spaces', desc: 'Pre-configured workspace folders' },
     { title: 'Automated Approvals', val: 'Routed Queues', desc: 'Instant C-suite delegation logs' },
     { title: 'SOP Digitization', val: 'Forms to Tasks', desc: 'No-code process triggers' },
     { title: 'Executive Dashboards', val: 'Unified Reporting', desc: 'C-suite performance cards' },
@@ -57,7 +57,7 @@ export const Home: React.FC = () => {
   ];
 
   const coreSystems = [
-    { title: 'HR Operations', icon: Users, desc: 'Onboarding flows, recruitment tracking, leaves, and appraisal systems nested in ClickUp.', route: '/hr-operations', color: 'text-sky-650 bg-sky-50' },
+    { title: 'HR Operations', icon: Users, desc: 'Onboarding flows, recruitment tracking, leaves, and appraisal systems nested in the workspace.', route: '/hr-operations', color: 'text-sky-650 bg-sky-50' },
     { title: 'Procurement Workflow', icon: ShoppingCart, desc: 'Requisition forms, evaluations matrix, purchase orders and automatic high-value threshold routes.', route: '/procurement', color: 'text-emerald-650 bg-emerald-50' },
     { title: 'Project Execution Tracker', icon: Layers, desc: 'Live project status, milestone logs, budget tracking and risks registries.', route: '/projects', color: 'text-amber-650 bg-amber-50' },
     { title: 'Vendor Management Portal', icon: Truck, desc: 'Partner onboarding checklists, SLA scoring, contract expiration alerts and External guest views.', route: '/vendors', color: 'text-indigo-650 bg-indigo-50' },
@@ -72,19 +72,19 @@ export const Home: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 font-sans">
       
-      {/* ClickUp Implementation Branding Banner */}
+      {/* ATMA Global Resources Branding Banner */}
       <div className="text-center space-y-6 max-w-4xl mx-auto animate-fade-in">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/25 uppercase tracking-wider mx-auto">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-blue-105 text-blue-800 border border-blue-200 uppercase tracking-wider mx-auto">
           <Sparkles className="h-4 w-4 shrink-0" />
-          ClickUp Implementation Simulation & Proposal Blueprint
+          ATMA GLOBAL RESOURCES LIMITED Workspace Proposal Blueprint
         </div>
         
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          ClickUp Operations Hub
+          ATMA Operations Hub
         </h1>
         
         <p className="text-sm md:text-md text-slate-505 leading-relaxed max-w-3xl mx-auto font-medium">
-          A centralized ClickUp operations platform to digitize workflows, automate approvals, and maintain real-time tracking across all key departments.
+          A centralized digital operations platform to streamline procedures, automate approvals, and maintain real-time tracking across all key departments.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-3">
@@ -118,8 +118,8 @@ export const Home: React.FC = () => {
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
             Your Operational Stations ({visibleSystems.length} Active Spaces)
           </h2>
-          <p className="text-xs text-slate-400 mt-1 uppercase font-semibold tracking-wider">
-            Simulate ClickUp Spaces configured for department workflows below
+          <p className="text-xs text-slate-405 mt-1 uppercase font-semibold tracking-wider">
+            Simulate secure folders configured for department workflows below
           </p>
         </div>
 

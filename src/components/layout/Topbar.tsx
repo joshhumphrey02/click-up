@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bell, Search, ShieldCheck, ChevronDown, User, CheckCircle, Trash } from 'lucide-react';
+import { Bell, Search, ShieldCheck, ChevronDown, User, CheckCircle, Trash, LogOut } from 'lucide-react';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { UserRole } from '../../types';
 
@@ -15,7 +15,8 @@ export const Topbar: React.FC<TopbarProps> = ({ id }) => {
     notificationsList,
     clearNotifications,
     activeNotification,
-    setActiveNotification
+    setActiveNotification,
+    logout
   } = useCommandCenter();
 
   const [notifOpen, setNotifOpen] = useState(false);
@@ -170,6 +171,19 @@ export const Topbar: React.FC<TopbarProps> = ({ id }) => {
                     )}
                   </button>
                 ))}
+              </div>
+              <div className="border-t border-slate-100 my-1"></div>
+              <div className="p-1">
+                <button
+                  onClick={() => {
+                    logout();
+                    setRoleOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Lock & Log Out</span>
+                </button>
               </div>
             </div>
           )}

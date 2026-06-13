@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "ATMA GLOBAL RESOURCES LIMITED",
+  "description": "Centralized Operations Hub and Workflow Management System for ATMA GLOBAL RESOURCES LIMITED.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

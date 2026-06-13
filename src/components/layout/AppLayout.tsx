@@ -5,12 +5,13 @@ import { Topbar } from './Topbar';
 import { useCommandCenter } from '../../context/CommandCenterContext';
 import { ROLE_PERMISSIONS, getProfileByRole } from '../../utils/permissions';
 import { ShieldAlert, KeyRound, UserCheck, LayoutGrid } from 'lucide-react';
+import { Login } from '../../pages/Login';
 
 export const AppLayout: React.FC = () => {
   const [syncTime, setSyncTime] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentRole, setRole } = useCommandCenter();
+  const { currentRole, setRole, isLoggedIn, logout } = useCommandCenter();
 
   useEffect(() => {
     const updateTime = () => {
@@ -21,6 +22,10 @@ export const AppLayout: React.FC = () => {
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!isLoggedIn) {
+    return <Login />;
+  }
 
   const allowedPaths = ROLE_PERMISSIONS[currentRole] || [];
   const isAllowed = allowedPaths.includes(location.pathname);
@@ -114,11 +119,11 @@ export const AppLayout: React.FC = () => {
                     </button>
 
                     <button
-                      onClick={() => setRole('Executive Management')}
-                      className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition shadow-md cursor-pointer"
+                      onClick={() => logout()}
+                      className="flex-grow inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition shadow-md cursor-pointer"
                     >
                       <KeyRound className="h-4 w-4 shrink-0" />
-                      Elevate to Executive
+                      Switch Simulation User
                     </button>
                   </div>
                 </div>
