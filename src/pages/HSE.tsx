@@ -48,49 +48,73 @@ export const HSE: React.FC = () => {
   const [locInput, setLocInput] = useState('');
   const [actionsInput, setActionsInput] = useState('');
 
-  // 1. Incidents register data with specified columns
-  const [incidents, setIncidents] = useState<IncidentItem[]>([
-    {
-      id: 'HSE-701',
-      date: '2026-06-05',
-      location: 'South Substation Base Generator Unit 4',
-      type: 'First Aid - Minor Hand Scraping',
-      severity: 'Low',
-      status: 'Resolved',
-      actionsTaken: 'Cleaned wound with standard antiseptics, dressed, completed safety brief.',
-      dateClosed: '2026-06-05'
-    },
-    {
-      id: 'HSE-702',
-      date: '2026-06-08',
-      location: 'Port Harcourt Jetty Loading Dock B',
-      type: 'Environmental Fuel Spillage (15 Liters)',
-      severity: 'High',
-      status: 'Investigating',
-      actionsTaken: 'Deployed sawdust absorbent pads, cordoned off drainage channels, dispatched containment inspectors.',
-      dateClosed: 'Pending Audit'
-    },
-    {
-      id: 'HSE-703',
-      date: '2026-06-10',
-      location: 'VGC Main Overhaul Steel Scaffold Rack',
-      type: 'Critical Scaffold Structural Sagging',
-      severity: 'Critical',
-      status: 'Open',
-      actionsTaken: 'Site access immediately locked, red-flag tag attached, emergency structural crew contacted.',
-      dateClosed: 'Pending Review'
-    },
-    {
-      id: 'HSE-704',
-      date: '2025-05-28',
-      location: 'Corporate HQ Server Room Base Block',
-      type: 'Electrical Short-circuit Sparking',
-      severity: 'Medium',
-      status: 'Resolved',
-      actionsTaken: 'Manual safety breakers toggled, circuit breaker swap-out by electrical contractor, thermographic review done.',
-      dateClosed: '2025-05-29'
-    }
-  ]);
+  // 1. Incidents register data with specified columns, loading from localStorage for real-time status switching
+  const [incidents, setIncidents] = useState<IncidentItem[]>(() => {
+    const saved = localStorage.getItem('hse_incidents');
+    if (saved) return JSON.parse(saved);
+    return [
+      {
+        id: 'HSE-701',
+        date: '2026-06-05',
+        location: 'South Substation Base Generator Unit 4',
+        type: 'First Aid - Minor Hand Scraping',
+        severity: 'Low',
+        status: 'Resolved',
+        actionsTaken: 'Cleaned wound with standard antiseptics, dressed, completed safety brief.',
+        dateClosed: '2026-06-05'
+      },
+      {
+        id: 'HSE-702',
+        date: '2026-06-08',
+        location: 'Port Harcourt Jetty Loading Dock B',
+        type: 'Environmental Fuel Spillage (15 Liters)',
+        severity: 'High',
+        status: 'Investigating',
+        actionsTaken: 'Deployed sawdust absorbent pads, cordoned off drainage channels, dispatched containment inspectors.',
+        dateClosed: 'Pending Audit'
+      },
+      {
+        id: 'HSE-703',
+        date: '2026-06-10',
+        location: 'VGC Main Overhaul Steel Scaffold Rack',
+        type: 'Critical Scaffold Structural Sagging',
+        severity: 'Critical',
+        status: 'Open',
+        actionsTaken: 'Site access immediately locked, red-flag tag attached, emergency structural crew contacted.',
+        dateClosed: 'Pending Review'
+      },
+      {
+        id: 'HSE-704',
+        date: '2025-05-28',
+        location: 'Corporate HQ Server Room Base Block',
+        type: 'Electrical Short-circuit Sparking',
+        severity: 'Medium',
+        status: 'Resolved',
+        actionsTaken: 'Manual safety breakers toggled, circuit breaker swap-out by electrical contractor, thermographic review done.',
+        dateClosed: '2025-05-29'
+      }
+    ];
+  });
+
+  const saveIncidents = (updated: IncidentItem[]) => {
+    setIncidents(updated);
+    localStorage.setItem('hse_incidents', JSON.stringify(updated));
+  };
+
+  const handleUpdateIncidentStatus = (id: string, newStatus: 'Open' | 'Investigating' | 'Resolved') => {
+    const updated = incidents.map(inc => {
+      if (inc.id === id) {
+        return {
+          ...inc,
+          status: newStatus,
+          dateClosed: newStatus === 'Resolved' ? new Date().toISOString().split('T')[0] : 'Pending Review'
+        };
+      }
+      return inc;
+    });
+    saveIncidents(updated);
+    triggerToast(`Incident status for ${id} successfully updated to ${newStatus}.`);
+  };
 
   // 2. Safety Audit Checklist (interactive checklist)
   const [auditChecks, setAuditChecks] = useState([
@@ -141,7 +165,8 @@ export const HSE: React.FC = () => {
       dateClosed: 'Pending Review'
     };
 
-    setIncidents(prev => [newItem, ...prev]);
+    const updated = [newItem, ...incidents];
+    saveIncidents(updated);
 
     if (severity === 'Critical') {
       setEscalationTriggered(true);
@@ -180,7 +205,7 @@ export const HSE: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-201 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-rose-100 text-rose-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: HSE-COMPLIANCE
+            ATMA Space: HSE-COMPLIANCE
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">HSE Monitoring Dashboard</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -274,9 +299,22 @@ export const HSE: React.FC = () => {
                       </td>
                       <td className="p-3 font-semibold text-slate-500">{inc.dateClosed}</td>
                       <td className="p-3 text-center">
-                        <Badge variant={inc.status === 'Resolved' ? 'green' : inc.status === 'Investigating' ? 'amber' : 'red'}>
-                          {inc.status}
-                        </Badge>
+                        <select
+                          id={`status-select-${inc.id}`}
+                          value={inc.status}
+                          onChange={(e) => handleUpdateIncidentStatus(inc.id, e.target.value as any)}
+                          className={`px-2 py-1 rounded text-[11px] font-black tracking-wide cursor-pointer outline-none transition border duration-150 inline-block text-center shadow-2xs ${
+                            inc.status === 'Resolved' 
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
+                              : inc.status === 'Investigating' 
+                                ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' 
+                                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                          }`}
+                        >
+                          <option value="Open" className="bg-white text-rose-700 font-semibold">Open</option>
+                          <option value="Investigating" className="bg-white text-amber-700 font-semibold">Investigating</option>
+                          <option value="Resolved" className="bg-white text-emerald-700 font-semibold">Resolved</option>
+                        </select>
                       </td>
                     </tr>
                   ))}
@@ -469,7 +507,7 @@ export const HSE: React.FC = () => {
             <div>
               <strong>AUTOMATIC EXECUTIVE ESCALATION DISPATCHED!</strong>
               <p className="text-[10px] font-semibold text-rose-700 mt-1 max-w-sm">
-                severity rating of CRITICAL triggers automated ClickUp push alerts directly communicating with Executive Director Daniel Eze.
+                severity rating of CRITICAL triggers automated ATMA push alerts directly communicating with Executive Director Daniel Eze.
               </p>
             </div>
           </div>

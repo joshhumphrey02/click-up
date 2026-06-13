@@ -123,7 +123,7 @@ export const ExecutiveDashboard: React.FC = () => {
     {
       id: 'q1',
       question: 'What is our overall task completion rate?',
-      answer: `Our overall clickup workspace task completion rate is currently ${completionRate}% (${completedTasks} of ${totalTasks} tasks closed). Standard Q2 operational threshold targets 85% completion. Refactor of projects workflows has boosted this index by 11.4% since last sprint.`,
+      answer: `Our overall ATMA workspace task completion rate is currently ${completionRate}% (${completedTasks} of ${totalTasks} tasks closed). Standard Q2 operational threshold targets 85% completion. Refactor of projects workflows has boosted this index by 11.4% since last sprint.`,
       icon: Activity
     },
     {
@@ -167,7 +167,7 @@ export const ExecutiveDashboard: React.FC = () => {
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Workspace: REPORTING-TIERS
+            ATMA Workspace: REPORTING-TIERS
           </span>
           <h2 className="text-xl font-black text-slate-905 mt-2">Dashboards & Reporting</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold text-slate-500">

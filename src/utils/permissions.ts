@@ -93,7 +93,7 @@ export const getProfileByRole = (role: UserRole): RoleProfile => {
     case 'System Administrator':
       return { 
         name: 'Alex Mercer', 
-        title: 'ClickUp Workspace Admin', 
+        title: 'ATMA Workspace Admin', 
         initials: 'AM',
         badge: 'Workspace Superuser'
       };

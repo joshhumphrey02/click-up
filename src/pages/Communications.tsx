@@ -210,7 +210,7 @@ export const Communications: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: INTER-DEPT-COMMS
+            ATMA Space: INTER-DEPT-COMMS
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">Interdepartmental Communication</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">

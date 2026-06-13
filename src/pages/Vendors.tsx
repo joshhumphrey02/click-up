@@ -160,7 +160,7 @@ export const Vendors: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-205 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: VENDOR-PORTAL
+            ATMA Space: VENDOR-PORTAL
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">Vendor Management Portal</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -176,7 +176,7 @@ export const Vendors: React.FC = () => {
               portalView === 'Internal' ? 'bg-[#7C3AED] text-white shadow-xs' : 'text-slate-505 hover:text-slate-900'
             }`}
           >
-            Internal ClickUp Space
+            Internal ATMA Space
           </button>
           <button
             onClick={() => setPortalView('External')}

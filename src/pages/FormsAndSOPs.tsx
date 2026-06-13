@@ -27,7 +27,7 @@ interface DigitizedSOP {
   name: string;
   department: string;
   manualSystemBefore: string;
-  clickUpSystemAfter: string;
+  atmaSystemAfter: string;
   policyDetails: string;
   benefits: string[];
 }
@@ -44,8 +44,8 @@ export const FormsAndSOPs: React.FC = () => {
       name: 'Employee Offboarding & Exit Clearing Policy',
       department: 'HR Operations',
       manualSystemBefore: 'Multiple department paper signatures, email threads containing duplicate asset handovers, loose Excel sheets, and delayed payroll closeout.',
-      clickUpSystemAfter: 'Automatic subtask generation upon HR status transition to "Resigned". Cross-department clearings routed simultaneously to IT, Finance, and Security.',
-      policyDetails: 'When status is updated to "Resigned", the ClickUp Automation engine spawns 4 concurrent subtask folders: (1) IT Asset Retrieval [SLA: 48h], (2) Finance Payroll Settlement [SLA: 24h], (3) Security Access Deactivation [SLA: 12h], (4) Exit Interview scheduling. Exit clearances are digitally consolidated on the personnel dossier sheet automatically.',
+      atmaSystemAfter: 'Automatic subtask generation upon HR status transition to "Resigned". Cross-department clearings routed simultaneously to IT, Finance, and Security.',
+      policyDetails: 'When status is updated to "Resigned", the ATMA Automation engine spawns 4 concurrent subtask folders: (1) IT Asset Retrieval [SLA: 48h], (2) Finance Payroll Settlement [SLA: 24h], (3) Security Access Deactivation [SLA: 12h], (4) Exit Interview scheduling. Exit clearances are digitally consolidated on the personnel dossier sheet automatically.',
       benefits: ['Zero unreturned corporate assets', '100% compliant withholding tax closeout', 'IT access locked on day-of-exit']
     },
     {
@@ -53,7 +53,7 @@ export const FormsAndSOPs: React.FC = () => {
       name: 'Procurement Approval & Purchase Ordering Guidelines',
       department: 'Procurement & Finance',
       manualSystemBefore: 'Manual printable voucher forms, physical folder transfers seeking executive director ink signatures, and loose scanner attachments.',
-      clickUpSystemAfter: 'Digital Intake Form submission trigger. Automatic threshold-based division routes transactions instantly into custom C-suite queues.',
+      atmaSystemAfter: 'Digital Intake Form submission trigger. Automatic threshold-based division routes transactions instantly into custom C-suite queues.',
       policyDetails: 'Purchase requisition form input triggers automatic audit limit calculations. Files under ₦10M stay inside department queue for standard manager review. Requisitions exceeding ₦10M bypass standard levels, locking modifications and injecting the board paper directly into the CEO Executive Approval Queue.',
       benefits: ['Approval cycle reduced from 5 days to 4 hours', '15% savings via pre-qualified vendor screening', 'Cryptographic signature logs audit compliance']
     },
@@ -62,14 +62,14 @@ export const FormsAndSOPs: React.FC = () => {
       name: 'Incident Reporting and Emergency Site Escapes',
       department: 'HSE & Compliance',
       manualSystemBefore: 'Verbal warnings logged on paper books at site depots, causing 48h delays before corporate safety managers are notified.',
-      clickUpSystemAfter: 'Emergency incident filing form. Choosing severity level "Critical" triggers direct push alerts to CEO and logs JVC committee actions.',
+      atmaSystemAfter: 'Emergency incident filing form. Choosing severity level "Critical" triggers direct push alerts to CEO and logs JVC committee actions.',
       policyDetails: 'Upon filing a safety hazard, if risk level matched as "Critical", standard queues are overridden. An SMS trigger dispatched immediately to CEO. Site coordinates locked on local board records, and runbook logs an action task assigned directly to safety directors.',
       benefits: ['Statutory penalty exposure minimized', 'Zero hours delay for critical notifications', 'Auditable corrective action tracker closed loop']
     }
   ];
 
   const valueProps = [
-    { title: '100% Scheme Control', desc: 'SOP compliance rules are hardcoded into ClickUp status triggers, preventing step-skipping behavior.' },
+    { title: '100% Scheme Control', desc: 'SOP compliance rules are hardcoded into ATMA status triggers, preventing step-skipping behavior.' },
     { title: 'Durable Ledger Tracking', desc: 'Every sign-off, comment, and attachment is preserved in the task history audit trail.' },
     { title: 'SLA Escalation Engine', desc: 'Tasks approaching limit deadlines are automatically color-coded with warning bells for HODs.' }
   ];
@@ -93,7 +93,7 @@ export const FormsAndSOPs: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: SOP-DIGITIZATION
+            ATMA Space: SOP-DIGITIZATION
           </span>
           <h2 className="text-xl font-black text-slate-905 mt-2">SOP Digitization</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -172,12 +172,12 @@ export const FormsAndSOPs: React.FC = () => {
                 </div>
               </div>
 
-              {/* ClickUp After Card */}
+              {/* ATMA After Card */}
               <div className="p-5 rounded-2xl border border-emerald-205 bg-emerald-50/10 space-y-3.5 flex flex-col justify-between shadow-xs">
                 <div>
                   <div className="flex items-center gap-2 text-emerald-800 uppercase font-black tracking-wiest text-[10px]">
                     <ShieldCheck className="h-4.5 w-4.5 text-emerald-600 shrink-0 animate-pulse" />
-                    <span>ClickUp Digital Operations (After)</span>
+                    <span>ATMA Digital Operations (After)</span>
                   </div>
                   <h4 className="text-sm font-black text-slate-900 mt-2">Structured Schema Policy Guard</h4>
                   <ul className="space-y-2 mt-4 text-slate-705 leading-relaxed">
@@ -204,7 +204,7 @@ export const FormsAndSOPs: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-3 font-semibold text-xs text-slate-700 leading-relaxed">
-              <p>Through our ClickUp implementation roadmap, we consolidate three foundational layers:</p>
+              <p>Through our ATMA implementation roadmap, we consolidate three foundational layers:</p>
               <div className="grid md:grid-cols-3 gap-6 pt-2">
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                   <strong>1. Schema Consistency</strong>
@@ -275,14 +275,14 @@ export const FormsAndSOPs: React.FC = () => {
                   </div>
                   
                   <div className="p-3 bg-emerald-50/10 border border-emerald-205 rounded-xl">
-                    <span className="text-[9px] uppercase font-black text-emerald-700 block mb-1">ClickUp automatic trigger (After)</span>
-                    <p className="text-[11px] text-slate-705 leading-relaxed">{selectedSop.clickUpSystemAfter}</p>
+                    <span className="text-[9px] uppercase font-black text-emerald-700 block mb-1">ATMA automatic trigger (After)</span>
+                    <p className="text-[11px] text-slate-705 leading-relaxed">{selectedSop.atmaSystemAfter}</p>
                   </div>
                 </div>
 
                 {/* Core Policy runbook */}
                 <div className="p-4 bg-slate-50 border border-slate-150 rounded-xl space-y-2">
-                  <span className="text-[9px] uppercase tracking-wider font-black text-[#7C3AED] block">Transformed clickup status runbook policy:</span>
+                  <span className="text-[9px] uppercase tracking-wider font-black text-[#7C3AED] block">Transformed atma status runbook policy:</span>
                   <p className="text-[11px] text-slate-705 leading-relaxed font-semibold">{selectedSop.policyDetails}</p>
                 </div>
 
@@ -301,7 +301,7 @@ export const FormsAndSOPs: React.FC = () => {
 
                 {/* Print button simulator */}
                 <div className="border-t border-slate-100 pt-4 flex justify-between items-center bg-slate-50/30">
-                  <span className="text-[10px] text-slate-400 italic">This blueprint represents a fully integrated ClickUp Doc template, visible to authorized stakeholders.</span>
+                  <span className="text-[10px] text-slate-400 italic">This blueprint represents a fully integrated ATMA Doc template, visible to authorized stakeholders.</span>
                   <button
                     onClick={() => triggerToast(`Copied policy Doc template for ${selectedSop.id} to workspace pasteboard!`)}
                     className="p-1.5 bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/15 rounded text-[10px] cursor-pointer font-black uppercase flex items-center gap-1.5"

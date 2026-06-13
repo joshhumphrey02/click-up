@@ -51,6 +51,7 @@ interface CommandCenterContextType {
   rejectExecutiveApproval: (id: string) => void;
   requestInfoExecutiveApproval: (id: string) => void;
   addOnboardingTask: (task: Omit<OnboardingTask, 'id'>) => void;
+  updateOnboardingTaskStatus: (id: string, newStatus: OnboardingTask['status']) => void;
   addHseIncident: (incident: Omit<HSEIncident, 'id' | 'reportedAt' | 'status'>) => void;
   addMeeting: (meeting: Omit<VirtualMeeting, 'id' | 'actionItems' | 'decisions'>) => void;
   addCommsRequest: (req: Omit<CommunicationRequest, 'id' | 'timeLeftHours' | 'status' | 'lastUpdate' | 'thread'>) => void;
@@ -260,6 +261,20 @@ export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ child
     addNotification(`Added Onboarding candidate: ${newTask.name} for ${newTask.position}`);
   };
 
+  const updateOnboardingTaskStatus = (id: string, newStatus: OnboardingTask['status']) => {
+    setOnboardingTasks(prev => prev.map(t => {
+      if (t.id === id) {
+        addNotification(`Onboarding pipeline updated for ${t.name}: moved to stage "${newStatus}"`);
+        return {
+          ...t,
+          status: newStatus,
+          ...(newStatus === 'Hired' ? { approvalStatus: 'Approved' as const } : {})
+        };
+      }
+      return t;
+    }));
+  };
+
   // 4. HSE Incident adding
   const addHseIncident = (partInc: Omit<HSEIncident, 'id' | 'reportedAt' | 'status'>) => {
     const newId = `INC-${200 + hseIncidents.length + 1}`;
@@ -398,6 +413,7 @@ export const CommandCenterProvider: React.FC<{ children: ReactNode }> = ({ child
       rejectExecutiveApproval,
       requestInfoExecutiveApproval,
       addOnboardingTask,
+      updateOnboardingTaskStatus,
       addHseIncident,
       addMeeting,
       addCommsRequest,

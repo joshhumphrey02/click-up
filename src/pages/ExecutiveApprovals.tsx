@@ -150,7 +150,7 @@ export const ExecutiveApprovals: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: EXECUTIVE-DECISIONS
+            ATMA Space: EXECUTIVE-DECISIONS
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">Executive Approval Centre</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -312,7 +312,7 @@ export const ExecutiveApprovals: React.FC = () => {
               <div>
                 <strong>Verify digital governance stamp request:</strong>
                 <p className="text-[10px] text-slate-555 font-semibold mt-1">
-                  You are en-route to marking docket <strong className="text-slate-900 font-extrabold">{activeReviewItem.id}</strong> as <strong className="text-slate-900">{confirmType === 'Approve' ? 'APPROVED' : confirmType === 'Reject' ? 'REJECTED' : 'INFO REQUEST'}</strong>. This action signs the official ClickUp Board file.
+                  You are en-route to marking docket <strong className="text-slate-900 font-extrabold">{activeReviewItem.id}</strong> as <strong className="text-slate-900">{confirmType === 'Approve' ? 'APPROVED' : confirmType === 'Reject' ? 'REJECTED' : 'INFO REQUEST'}</strong>. This action signs the official ATMA Board file.
                 </p>
               </div>
             </div>

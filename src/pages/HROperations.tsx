@@ -20,7 +20,13 @@ import {
   Sparkles,
   CheckCircle2,
   Lock,
-  ChevronRight
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Sliders,
+  Check,
+  UserPlus,
+  Trash2
 } from 'lucide-react';
 import { useCommandCenter } from '../context/CommandCenterContext';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
@@ -28,25 +34,100 @@ import { StatCard } from '../components/ui/StatCard';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
+import { toast } from 'sonner';
+
+export interface EmployeeRecord {
+  id: string;
+  name: string;
+  dept: string;
+  pos: string;
+  email: string;
+  contract: 'Full-time' | 'Contract' | 'Consultant';
+  status: 'Active' | 'On Probation' | 'Suspended' | 'Inactive / Terminated';
+}
+
+export interface LeaveRequest {
+  id: string;
+  name: string;
+  dept: string;
+  days: number;
+  start: string;
+  end: string;
+  type: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+}
+
+export interface AppraisalSubmission {
+  id: string;
+  name: string;
+  dept: string;
+  rating: string;
+  reviewer: string;
+  date: string;
+}
+
+export interface ExitProcess {
+  id: string;
+  employeeId: string;
+  name: string;
+  pos: string;
+  dept: string;
+  exitDate: string;
+  auditStatus: 'Pending Sign-off' | 'Cleared';
+  itRevoked: boolean;
+  assetsReturned: boolean;
+  interviewDone: boolean;
+  financeSettled: boolean;
+}
+
+export interface EmployeeTraining {
+  employeeId: string;
+  employeeName: string;
+  courseId: string;
+  courseName: string;
+  progress: number;
+  status: 'Not Started' | 'In Progress' | 'Completed';
+  lastUpdated: string;
+}
+
+export interface OnboardingChecklistState {
+  id: string; // employeeId or candidateId
+  itAccount: boolean;
+  deviceAlloc: boolean;
+  accessKeys: boolean;
+  orientation: boolean;
+  complianceCourse: boolean;
+  probationReview: boolean;
+}
 
 export const HROperations: React.FC = () => {
-  const { onboardingTasks, addOnboardingTask, currentRole } = useCommandCenter();
+  const { onboardingTasks, addOnboardingTask, updateOnboardingTaskStatus, currentRole } = useCommandCenter();
 
   // Selected Active Tab in HR Space
-  const [activeTab, setActiveTab] = useState<'recruitment' | 'onboarding' | 'records' | 'leaves' | 'performance' | 'training' | 'exits'>('recruitment');
+  const [activeTab, setActiveTab ] = useState<'recruitment' | 'onboarding' | 'records' | 'leaves' | 'performance' | 'training' | 'exits'>('recruitment');
   
-  // Modals for Form Previews
+  // Modals for Form Previews / Additions
   const [activeFormModal, setActiveFormModal] = useState<'recruitment' | 'leave' | 'performance' | 'exit' | null>(null);
+  const [addEmployeeModal, setAddEmployeeModal] = useState(false);
 
   // For adding custom candidates in Kanban
   const [addCandModal, setAddCandModal] = useState(false);
   const [candName, setCandName] = useState('');
   const [candPos, setCandPos] = useState('');
-  const [candDept, setCandDept] = useState('Marketing');
+  const [candDept, setCandDept] = useState('Engineering');
   const [candType, setCandType] = useState<'Full-time' | 'Contract' | 'Consultant'>('Full-time');
 
   // Interactive Onboarding Task selection (automap logic showcase)
   const [selectedOnboardCand, setSelectedOnboardCand] = useState<string>('EMP-001');
+  const [selectedExitProcessId, setSelectedExitProcessId] = useState<string>('EX-9');
+
+  // New Employee Form State
+  const [newEmpName, setNewEmpName] = useState('');
+  const [newEmpPos, setNewEmpPos] = useState('');
+  const [newEmpDept, setNewEmpDept] = useState('Engineering');
+  const [newEmpContract, setNewEmpContract] = useState<'Full-time' | 'Contract' | 'Consultant'>('Full-time');
+  const [newEmpEmail, setNewEmpEmail] = useState('');
+  const [newEmpStatus, setNewEmpStatus] = useState<'Active' | 'On Probation' | 'Suspended'>('Active');
 
   // Interactive states for test intake forms:
   const [recruitFormName, setRecruitFormName] = useState('');
@@ -64,27 +145,167 @@ export const HROperations: React.FC = () => {
 
   const [perfFormName, setPerfFormName] = useState('');
   const [perfFormRating, setPerfFormRating] = useState('Meets Expectations (Level 3)');
-  const [appraisalSubmissions, setAppraisalSubmissions] = useState([
-    { id: 'APP-1', name: 'Chioma Nwosu', rating: 'Exceeds Expectations (Level 5)', reviewer: 'Ada Okafor', date: '2026-06-10' },
-    { id: 'APP-2', name: 'Kelechi Egwu', rating: 'Meets Expectations (Level 3)', reviewer: 'Ada Okafor', date: '2026-06-11' }
-  ]);
 
   const [exitFormName, setExitFormName] = useState('');
   const [exitFormPos, setExitFormPos] = useState('');
   const [exitFormDept, setExitFormDept] = useState('Operations');
   const [exitFormDate, setExitFormDate] = useState('');
 
-  // Trigger local leaves approve/reject status hook
-  const [leaves, setLeaves] = useState([
-    { id: 'L-1', name: 'Amadi Kalu', dept: 'Operations', days: 5, start: '2026-06-15', end: '2026-06-20', type: 'Annual Leave', status: 'Pending' },
-    { id: 'L-2', name: 'Funmi Alao', dept: 'HR', days: 2, start: '2026-06-25', end: '2026-06-27', type: 'Casual Leave', status: 'Approved' },
-    { id: 'L-3', name: 'Musa Bello', dept: 'Procurement', days: 3, start: '2026-07-02', end: '2026-07-05', type: 'Sick Leave', status: 'Pending' }
-  ]);
+  // Course Definitions
+  const COURSES = [
+    { id: 'C-1', name: 'HSE Site Operations Safety Course' },
+    { id: 'C-2', name: 'ATMA Solution Workspace Training' },
+    { id: 'C-3', name: 'Corporate Compliance & Ethics' }
+  ];
 
-  const updateLeaveStatus = (id: string, newStatus: string) => {
-    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
+  // Course assign state
+  const [assignTrainEmpId, setAssignTrainEmpId] = useState('');
+  const [assignTrainCourseId, setAssignTrainCourseId] = useState('C-1');
+  const [assignTrainProgress, setAssignTrainProgress] = useState(50);
+
+  // Persistence loaded state engines:
+  const [employeeRecords, setEmployeeRecords] = useState<EmployeeRecord[]>(() => {
+    const saved = localStorage.getItem('hr_employee_records');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 'EMP-110', name: 'Emeka Obi', dept: 'Engineering', pos: 'Mechanical Engineer', email: 'e.obi@atma-ops.com', contract: 'Full-time', status: 'Active' },
+      { id: 'EMP-111', name: 'Fatima Umar', dept: 'Procurement', pos: 'Contract Negotiator', email: 'f.umar@atma-ops.com', contract: 'Full-time', status: 'Active' },
+      { id: 'EMP-112', name: 'Chioma Nwosu', dept: 'HSE', pos: 'Safety Inspector', email: 'c.nwosu@atma-ops.com', contract: 'Contract', status: 'Active' },
+      { id: 'EMP-113', name: 'Kelechi Egwu', dept: 'Operations', pos: 'Site Supervisor', email: 'k.egwu@atma-ops.com', contract: 'Consultant', status: 'On Probation' },
+      { id: 'EMP-114', name: 'Sade Adesina', dept: 'Finance', pos: 'Senior Auditor', email: 's.adesina@atma-ops.com', contract: 'Full-time', status: 'Active' }
+    ];
+  });
+
+  const saveEmployeeRecords = (updated: EmployeeRecord[]) => {
+    setEmployeeRecords(updated);
+    localStorage.setItem('hr_employee_records', JSON.stringify(updated));
   };
 
+  const [leaves, setLeaves] = useState<LeaveRequest[]>(() => {
+    const saved = localStorage.getItem('hr_leaves');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 'L-1', name: 'Emeka Obi', dept: 'Engineering', days: 5, start: '2026-06-15', end: '2026-06-20', type: 'Annual Leave', status: 'Pending' },
+      { id: 'L-2', name: 'Fatima Umar', dept: 'Procurement', days: 2, start: '2026-06-25', end: '2026-06-27', type: 'Casual Leave', status: 'Approved' },
+      { id: 'L-3', name: 'Kelechi Egwu', dept: 'Operations', days: 3, start: '2026-07-02', end: '2026-07-05', type: 'Sick Leave', status: 'Pending' }
+    ];
+  });
+
+  const saveLeaves = (updated: LeaveRequest[]) => {
+    setLeaves(updated);
+    localStorage.setItem('hr_leaves', JSON.stringify(updated));
+  };
+
+  const [appraisalSubmissions, setAppraisalSubmissions] = useState<AppraisalSubmission[]>(() => {
+    const saved = localStorage.getItem('hr_appraisals');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 'APP-1', name: 'Chioma Nwosu', dept: 'HSE', rating: 'Exceeds Expectations (Level 5)', reviewer: 'Ada Okafor', date: '2026-06-10' },
+      { id: 'APP-2', name: 'Kelechi Egwu', dept: 'Operations', rating: 'Meets Expectations (Level 3)', reviewer: 'Ada Okafor', date: '2026-06-11' }
+    ];
+  });
+
+  const saveAppraisals = (updated: AppraisalSubmission[]) => {
+    setAppraisalSubmissions(updated);
+    localStorage.setItem('hr_appraisals', JSON.stringify(updated));
+  };
+
+  const [exitProcesses, setExitProcesses] = useState<ExitProcess[]>(() => {
+    const saved = localStorage.getItem('hr_exits');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 'EX-9', employeeId: 'EMP-110', name: 'Lanre Davies', pos: 'Operations Manager', dept: 'Projects', exitDate: '2026-06-30', auditStatus: 'Pending Sign-off', itRevoked: true, assetsReturned: true, interviewDone: false, financeSettled: false },
+      { id: 'EX-10', employeeId: 'EMP-114', name: 'Zainab Yusuf', pos: 'HR Assistant', dept: 'HR & Admin', exitDate: '2026-07-15', auditStatus: 'Cleared', itRevoked: true, assetsReturned: true, interviewDone: true, financeSettled: true }
+    ];
+  });
+
+  const saveExits = (updated: ExitProcess[]) => {
+    setExitProcesses(updated);
+    localStorage.setItem('hr_exits', JSON.stringify(updated));
+  };
+
+  const [employeeTrainings, setEmployeeTrainings] = useState<EmployeeTraining[]>(() => {
+    const saved = localStorage.getItem('hr_trainings');
+    if (saved) return JSON.parse(saved);
+    return [
+      { employeeId: 'EMP-110', employeeName: 'Emeka Obi', courseId: 'C-1', courseName: 'HSE Site Operations Safety Course', progress: 100, status: 'Completed', lastUpdated: '2026-06-01' },
+      { employeeId: 'EMP-111', employeeName: 'Fatima Umar', courseId: 'C-2', courseName: 'ATMA Solution Workspace Training', progress: 85, status: 'In Progress', lastUpdated: '2026-06-03' },
+      { employeeId: 'EMP-112', employeeName: 'Chioma Nwosu', courseId: 'C-1', courseName: 'HSE Site Operations Safety Course', progress: 100, status: 'Completed', lastUpdated: '2026-06-05' },
+      { employeeId: 'EMP-113', employeeName: 'Kelechi Egwu', courseId: 'C-2', courseName: 'ATMA Solution Workspace Training', progress: 60, status: 'In Progress', lastUpdated: '2026-06-10' },
+      { employeeId: 'EMP-114', employeeName: 'Sade Adesina', courseId: 'C-3', courseName: 'Corporate Compliance & Ethics', progress: 90, status: 'In Progress', lastUpdated: '2026-06-09' }
+    ];
+  });
+
+  const saveTrainings = (updated: EmployeeTraining[]) => {
+    setEmployeeTrainings(updated);
+    localStorage.setItem('hr_trainings', JSON.stringify(updated));
+  };
+
+  const [onboardingChecklists, setOnboardingChecklists] = useState<Record<string, OnboardingChecklistState>>(() => {
+    const saved = localStorage.getItem('hr_onboarding_checklists');
+    if (saved) return JSON.parse(saved);
+    return {
+      'EMP-001': { id: 'EMP-001', itAccount: true, deviceAlloc: true, accessKeys: false, orientation: true, complianceCourse: true, probationReview: false },
+      'EMP-002': { id: 'EMP-002', itAccount: true, deviceAlloc: false, accessKeys: false, orientation: true, complianceCourse: false, probationReview: false }
+    };
+  });
+
+  const saveOnboardingChecklists = (updated: Record<string, OnboardingChecklistState>) => {
+    setOnboardingChecklists(updated);
+    localStorage.setItem('hr_onboarding_checklists', JSON.stringify(updated));
+  };
+
+  // State transitions callback wrapper that triggers auto-personnel promotion
+  const handleUpdateTaskStatus = (id: string, newStatus: any) => {
+    updateOnboardingTaskStatus(id, newStatus);
+    
+    if (newStatus === 'Hired' || newStatus === 'Onboarding Started') {
+      const task = onboardingTasks.find(t => t.id === id);
+      if (task) {
+        // check if exists
+        const exists = employeeRecords.some(r => r.name.toLowerCase() === task.name.toLowerCase());
+        if (!exists) {
+          const empId = task.employeeId || `EMP-${Math.floor(100 + Math.random() * 900)}`;
+          const newEmp: EmployeeRecord = {
+            id: empId,
+            name: task.name,
+            dept: task.department,
+            pos: task.position,
+            email: `${task.name.toLowerCase().replace(/\s+/g, '.')}@atma-ops.com`,
+            contract: task.contractType || 'Full-time',
+            status: newStatus === 'Hired' ? 'Active' : 'On Probation'
+          };
+          const updated = [...employeeRecords, newEmp];
+          saveEmployeeRecords(updated);
+          toast.success(`Automatically added ${task.name} to Digital Employee Master Roll!`);
+          
+          // Allocate an onboarding checklist
+          const updatedChecklists = {
+            ...onboardingChecklists,
+            [empId]: {
+              id: empId,
+              itAccount: false,
+              deviceAlloc: false,
+              accessKeys: false,
+              orientation: false,
+              complianceCourse: false,
+              probationReview: false
+            }
+          };
+          saveOnboardingChecklists(updatedChecklists);
+          setSelectedOnboardCand(empId);
+        }
+      }
+    }
+  };
+
+  const updateLeaveStatus = (id: string, newStatus: 'Approved' | 'Rejected') => {
+    const updated = leaves.map(l => l.id === id ? { ...l, status: newStatus } : l);
+    saveLeaves(updated);
+    toast.success(`Leave request ${id} ${newStatus.toLowerCase()} successfully!`);
+  };
+
+  // Intake Submissions:
   const handleRecruitmentIntakeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!recruitFormName.trim() || !recruitFormRole.trim()) return;
@@ -103,6 +324,7 @@ export const HROperations: React.FC = () => {
       approvalStatus: 'Pending'
     });
 
+    toast.success(`Recruitment Request logged in Kanban lanes for ${recruitFormName}!`);
     setRecruitFormName('');
     setRecruitFormRole('');
     setRecruitFormJustification('');
@@ -118,7 +340,7 @@ export const HROperations: React.FC = () => {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
-    const newLeave = {
+    const newLeave: LeaveRequest = {
       id: `L-${leaves.length + 1}`,
       name: leaveFormName,
       dept: leaveFormDept,
@@ -129,7 +351,8 @@ export const HROperations: React.FC = () => {
       status: 'Pending'
     };
 
-    setLeaves(prev => [newLeave, ...prev]);
+    saveLeaves([newLeave, ...leaves]);
+    toast.success(`Leave Application submitted for HOD authorization!`);
     setLeaveFormName('');
     setLeaveFormStart('');
     setLeaveFormEnd('');
@@ -140,15 +363,20 @@ export const HROperations: React.FC = () => {
     e.preventDefault();
     if (!perfFormName.trim()) return;
 
-    const newAppraisal = {
+    const emp = employeeRecords.find(r => r.name === perfFormName);
+    const dept = emp ? emp.dept : 'Operations';
+
+    const newAppraisal: AppraisalSubmission = {
       id: `APP-${appraisalSubmissions.length + 1}`,
       name: perfFormName,
+      dept,
       rating: perfFormRating,
       reviewer: 'Ada Okafor',
       date: new Date().toISOString().split('T')[0]
     };
 
-    setAppraisalSubmissions(prev => [newAppraisal, ...prev]);
+    saveAppraisals([newAppraisal, ...appraisalSubmissions]);
+    toast.success(`HOD Appraisal registered for ${perfFormName}!`);
     setPerfFormName('');
     setActiveFormModal(null);
   };
@@ -157,17 +385,26 @@ export const HROperations: React.FC = () => {
     e.preventDefault();
     if (!exitFormName.trim() || !exitFormPos.trim()) return;
 
-    const newExit = {
+    const emp = employeeRecords.find(r => r.name === exitFormName);
+    const empId = emp ? emp.id : `EMP-${Math.floor(100 + Math.random() * 900)}`;
+
+    const newExit: ExitProcess = {
       id: `EX-${exitProcesses.length + 10}`,
+      employeeId: empId,
       name: exitFormName,
       pos: exitFormPos,
       exitDate: exitFormDate || new Date().toISOString().split('T')[0],
       dept: exitFormDept,
       auditStatus: 'Pending Sign-off',
-      clearance: '0% Complete'
+      itRevoked: false,
+      assetsReturned: false,
+      interviewDone: false,
+      financeSettled: false
     };
 
-    setExitProcesses(prev => [newExit, ...prev]);
+    saveExits([newExit, ...exitProcesses]);
+    setSelectedExitProcessId(newExit.id);
+    toast.success(`Exit Offboarding request initiated!`);
     setExitFormName('');
     setExitFormPos('');
     setExitFormDate('');
@@ -192,9 +429,140 @@ export const HROperations: React.FC = () => {
       approvalStatus: 'Pending'
     });
 
+    toast.success(`Simulated Candidate applied to "Request Submitted" lane!`);
     setCandName('');
     setCandPos('');
     setAddCandModal(false);
+  };
+
+  const handleAddNewEmployee = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmpName.trim() || !newEmpPos.trim()) return;
+
+    const emailWithDomain = newEmpEmail.trim() || `${newEmpName.toLowerCase().replace(/\s+/g, '.')}@atma-ops.com`;
+    const newEmp: EmployeeRecord = {
+      id: `EMP-${Math.floor(120 + Math.random() * 800)}`,
+      name: newEmpName,
+      pos: newEmpPos,
+      dept: newEmpDept,
+      contract: newEmpContract,
+      email: emailWithDomain,
+      status: newEmpStatus
+    };
+
+    saveEmployeeRecords([...employeeRecords, newEmp]);
+    toast.success(`Employee ${newEmpName} successfully registered!`);
+    
+    // Clear Form & Close Modal
+    setNewEmpName('');
+    setNewEmpPos('');
+    setNewEmpEmail('');
+    setAddEmployeeModal(false);
+  };
+
+  const handleDeleteEmployee = (id: string, name: string) => {
+    if (confirm(`Are you sure you want to remove ${name} from Active employee records?`)) {
+      const updated = employeeRecords.filter(r => r.id !== id);
+      saveEmployeeRecords(updated);
+      toast.success(`${name} record deleted.`);
+    }
+  };
+
+  const handleToggleOnboardingCheckbox = (empId: string, field: keyof OnboardingChecklistState) => {
+    const current = onboardingChecklists[empId] || {
+      id: empId,
+      itAccount: false,
+      deviceAlloc: false,
+      accessKeys: false,
+      orientation: false,
+      complianceCourse: false,
+      probationReview: false
+    };
+    
+    const updatedCand = {
+      ...current,
+      [field]: !current[field]
+    };
+    
+    const updated = {
+      ...onboardingChecklists,
+      [empId]: updatedCand
+    };
+    saveOnboardingChecklists(updated);
+    toast.success(`Checklist updated!`);
+  };
+
+  const handleToggleExitCheckbox = (exitId: string, field: 'itRevoked' | 'assetsReturned' | 'interviewDone' | 'financeSettled') => {
+    const updated = exitProcesses.map(p => {
+      if (p.id === exitId) {
+        const item = {
+          ...p,
+          [field]: !p[field]
+        };
+        // If complete and auditStatus is not cleared, notify they can sign off
+        return item;
+      }
+      return p;
+    });
+    saveExits(updated);
+    toast.success(`Clearance requirement state updated!`);
+  };
+
+  const handleFinalExitSignoff = (exitId: string) => {
+    const exitItem = exitProcesses.find(p => p.id === exitId);
+    if (!exitItem) return;
+
+    // Set as cleared
+    const updated = exitProcesses.map(p => p.id === exitId ? { ...p, auditStatus: 'Cleared' as const } : p);
+    saveExits(updated);
+
+    // Update Employee record status
+    const empUpdated = employeeRecords.map(r => r.id === exitItem.employeeId ? { ...r, status: 'Inactive / Terminated' as const } : r);
+    saveEmployeeRecords(empUpdated);
+
+    toast.success(`Official Clearance Authorized! Coordinated with IT & Payroll to decommission ${exitItem.name}.`);
+  };
+
+  const handleAssignTraining = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assignTrainEmpId) return;
+
+    const emp = employeeRecords.find(r => r.id === assignTrainEmpId);
+    const course = COURSES.find(c => c.id === assignTrainCourseId);
+    if (!emp || !course) return;
+
+    // Check if enrollment exists
+    const exists = employeeTrainings.some(t => t.employeeId === assignTrainEmpId && t.courseId === assignTrainCourseId);
+    let updatedTrainings: EmployeeTraining[] = [];
+    
+    if (exists) {
+      updatedTrainings = employeeTrainings.map(t => {
+        if (t.employeeId === assignTrainEmpId && t.courseId === assignTrainCourseId) {
+          return {
+            ...t,
+            progress: assignTrainProgress,
+            status: assignTrainProgress === 100 ? 'Completed' as const : 'In Progress' as const,
+            lastUpdated: new Date().toISOString().split('T')[0]
+          };
+        }
+        return t;
+      });
+      toast.success(`Updated course progression for ${emp.name}!`);
+    } else {
+      const newTraining: EmployeeTraining = {
+        employeeId: assignTrainEmpId,
+        employeeName: emp.name,
+        courseId: assignTrainCourseId,
+        courseName: course.name,
+        progress: assignTrainProgress,
+        status: assignTrainProgress === 100 ? 'Completed' as const : (assignTrainProgress === 0 ? 'Not Started' as const : 'In Progress' as const),
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      updatedTrainings = [newTraining, ...employeeTrainings];
+      toast.success(`Enrolled and set training progression for ${emp.name}!`);
+    }
+
+    saveTrainings(updatedTrainings);
   };
 
   const hrSpacesTabs = [
@@ -217,19 +585,22 @@ export const HROperations: React.FC = () => {
     'Onboarding Started'
   ] as const;
 
-  // Static HR Data representation
-  const [employeeRecords, setEmployeeRecords] = useState([
-    { id: 'EMP-110', name: 'Emeka Obi', dept: 'Engineering', pos: 'Mechanical Engineer', email: 'e.obi@nextgen.com', contract: 'Full-time', status: 'Active' },
-    { id: 'EMP-111', name: 'Fatima Umar', dept: 'Procurement', pos: 'Contract Negotiator', email: 'f.umar@nextgen.com', contract: 'Full-time', status: 'Active' },
-    { id: 'EMP-112', name: 'Chioma Nwosu', dept: 'HSE', pos: 'Safety Inspector', email: 'c.nwosu@nextgen.com', contract: 'Contract', status: 'Active' },
-    { id: 'EMP-113', name: 'Kelechi Egwu', dept: 'Operations', pos: 'Site Supervisor', email: 'k.egwu@nextgen.com', contract: 'Consultant', status: 'On Probation' },
-    { id: 'EMP-114', name: 'Sade Adesina', dept: 'Finance', pos: 'Senior Auditor', email: 's.adesina@nextgen.com', contract: 'Full-time', status: 'Active' }
-  ]);
+  // Combined real-time list of onboarded profiles: static fallback + dynamic board status 'Hired' or 'Onboarding Started'
+  const dynamicHired = onboardingTasks
+    .filter(t => t.status === 'Hired' || t.status === 'Onboarding Started')
+    .map(t => ({
+      id: t.employeeId || t.id,
+      name: t.name,
+      position: t.position
+    }));
 
-  const [exitProcesses, setExitProcesses] = useState([
-    { id: 'EX-9', name: 'Lanre Davies', pos: 'Operations Manager', exitDate: '2026-06-30', dept: 'Projects', auditStatus: 'Pending Sign-off', clearance: '70% Complete' },
-    { id: 'EX-10', name: 'Zainab Yusuf', pos: 'HR Assistant', exitDate: '2026-07-15', border: 'none', dept: 'HR & Admin', auditStatus: 'Cleared', clearance: '100% Complete' }
-  ]);
+  const allOnboardCands = [
+    { id: 'EMP-110', name: 'Emeka Obi', position: 'Mechanical Engineer' },
+    { id: 'EMP-111', name: 'Fatima Umar', position: 'Contract Negotiator' },
+    ...dynamicHired
+  ];
+
+  const selectedCandData = allOnboardCands.find(c => c.id === selectedOnboardCand) || allOnboardCands[0];
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto font-sans">
@@ -238,7 +609,7 @@ export const HROperations: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-[#7C3AED]/10 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: HR-OPS
+            ATMA Space: HR-OPS
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">HR Operations Space</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -290,7 +661,7 @@ export const HROperations: React.FC = () => {
         </div>
       </div>
 
-      {/* Embedded ClickUp View Navigation Bar */}
+      {/* Embedded ATMA View Navigation Bar */}
       <div className="flex border-b border-slate-250 bg-slate-100 rounded-lg p-1.5 gap-1 select-none">
         {hrSpacesTabs.map(tab => (
           <button
@@ -316,7 +687,7 @@ export const HROperations: React.FC = () => {
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-850 uppercase tracking-tight">Active Recruitment Kanban Board</h3>
-                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Statuses correspond directly to ClickUp custom states mapping candidate selection benchmarks.</p>
+                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Statuses correspond directly to ATMA custom states mapping candidate selection benchmarks.</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="xs" onClick={() => setActiveFormModal('recruitment')}>
@@ -329,10 +700,10 @@ export const HROperations: React.FC = () => {
               {recruitmentStatuses.map(status => {
                 const candidates = onboardingTasks.filter(t => t.status === status || (status === 'Request Submitted' && t.status === 'New Request'));
                 return (
-                  <div key={status} className="flex-1 min-w-[245px] max-w-[300px] bg-slate-50 border border-slate-205 rounded-xl p-3 flex flex-col h-[525px]">
+                  <div key={status} className="flex-1 min-w-[250px] max-w-[310px] bg-slate-50 border border-slate-205 rounded-xl p-3 flex flex-col h-[650px]">
                     <div className="flex items-center justify-between font-extrabold text-[11px] text-slate-800 pb-2 border-b border-slate-200/80 mb-3 uppercase tracking-wider">
                       <h3>{status}</h3>
-                      <span className="bg-slate-205 text-slate-600 font-bold px-2 py-0.5 rounded-full">{candidates.length}</span>
+                      <span className="bg-[#7C3AED]/10 text-[#7C3AED] font-bold px-2.5 py-0.5 rounded-full text-[10px]">{candidates.length}</span>
                     </div>
 
                     <div className="space-y-3 overflow-y-auto flex-grow scrollbar-thin pr-1">
@@ -342,7 +713,7 @@ export const HROperations: React.FC = () => {
                         </div>
                       ) : (
                         candidates.map((cand, candIdx) => (
-                          <div key={cand.id || candIdx} className="bg-white p-3.5 rounded-xl border border-slate-200 hover:shadow-xs transition duration-150 space-y-3">
+                          <div key={cand.id || candIdx} className="bg-white p-3.5 rounded-xl border border-slate-200 hover:shadow-md transition duration-155 space-y-3">
                             <div className="flex items-center justify-between text-[10px] font-extrabold">
                               <span className="text-slate-400">{cand.employeeId || 'REC-REQ'}</span>
                               <Badge variant={cand.priority === 'High' ? 'red' : 'indigo'}>{cand.priority || 'Low'}</Badge>
@@ -358,6 +729,56 @@ export const HROperations: React.FC = () => {
                                 <span className="text-[9px] text-slate-400">Modality:</span> <span className="text-slate-800">{cand.contractType}</span>
                               </div>
                             </div>
+
+                            {/* Dynamic Stage Transitioner Panel */}
+                            <div className="space-y-2 pt-2 border-t border-slate-100">
+                              <div className="flex items-center justify-between text-[8px] font-black uppercase text-slate-400 tracking-wider">
+                                <span>Transition Stage</span>
+                              </div>
+                              <select
+                                value={cand.status === 'New Request' ? 'Request Submitted' : cand.status}
+                                onChange={(e) => {
+                                  handleUpdateTaskStatus(cand.id, e.target.value as any);
+                                }}
+                                className="w-full bg-slate-50 border border-slate-200 hover:border-slate-350 focus:border-[#7C3AED] rounded-lg p-1.5 text-[10px] font-bold text-slate-700 outline-none transition cursor-pointer"
+                              >
+                                {recruitmentStatuses.map(s => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))}
+                              </select>
+
+                              <div className="flex items-center justify-between pt-1 gap-1">
+                                <button
+                                  type="button"
+                                  disabled={recruitmentStatuses.indexOf(status) === 0}
+                                  onClick={() => {
+                                    const prevIdx = recruitmentStatuses.indexOf(status) - 1;
+                                    if (prevIdx >= 0) {
+                                      handleUpdateTaskStatus(cand.id, recruitmentStatuses[prevIdx]);
+                                    }
+                                  }}
+                                  className="flex-1 bg-slate-50 hover:bg-slate-150 text-slate-750 border border-slate-200 font-extrabold text-[9px] py-1 px-1 rounded-md disabled:opacity-40 disabled:hover:bg-slate-55 transition flex items-center justify-center gap-0.5 cursor-pointer"
+                                  title="Previous Stage"
+                                >
+                                  <ChevronLeft className="h-3 w-3" /> Back
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={recruitmentStatuses.indexOf(status) === recruitmentStatuses.length - 1}
+                                  onClick={() => {
+                                    const nextIdx = recruitmentStatuses.indexOf(status) + 1;
+                                    if (nextIdx < recruitmentStatuses.length) {
+                                      handleUpdateTaskStatus(cand.id, recruitmentStatuses[nextIdx]);
+                                    }
+                                  }}
+                                  className="flex-1 bg-[#7C3AED]/10 hover:bg-[#7C3AED]/15 text-[#7C3AED] border border-[#7C3AED]/20 font-extrabold text-[9px] py-1 px-1 rounded-md disabled:opacity-40 disabled:hover:bg-transparent transition flex items-center justify-center gap-0.5 cursor-pointer"
+                                  title="Next Stage"
+                                >
+                                  Next <ChevronRight className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </div>
+
                           </div>
                         ))
                       )}
@@ -379,9 +800,9 @@ export const HROperations: React.FC = () => {
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#7C3AED] uppercase tracking-wider">ClickUp Core Automation: Hired Workspace Generation</h3>
+                  <h3 className="text-sm font-extrabold text-[#7C3AED] uppercase tracking-wider">ATMA Core Automation: Hired Workspace Generation</h3>
                   <p className="text-xs text-slate-650 leading-relaxed font-semibold mt-1 max-w-3xl">
-                    When a candidate’s Status is updated to <strong className="text-slate-900 border-b border-dashed border-emerald-600 pb-0.5">Hired</strong>, ClickUp automatically generates direct task items in IT, Logistics, HR, and Training checklists to secure zero-delay onboarding.
+                    When a candidate’s Status is updated to <strong className="text-slate-900 border-b border-dashed border-emerald-600 pb-0.5">Hired</strong>, ATMA automatically generates direct task items in IT, Logistics, HR, and Training checklists to secure zero-delay onboarding.
                   </p>
                 </div>
               </div>
@@ -392,28 +813,20 @@ export const HROperations: React.FC = () => {
               {/* Select Candidate Showcase */}
               <div className="lg:col-span-4 bg-white border border-slate-200 p-5 rounded-xl space-y-4">
                 <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Hired Staff Profile</h4>
-                <div className="space-y-2">
-                  <button 
-                    onClick={() => setSelectedOnboardCand('EMP-001')}
-                    className={`w-full p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition ${selectedOnboardCand === 'EMP-001' ? 'border-purple-500 bg-purple-50 text-slate-800 font-bold' : 'border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold leading-none mb-1">Amara Okonkwo</p>
-                      <p className="text-[10px] text-slate-405 uppercase font-extrabold tracking-wider">HSE Lead Inspector</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-purple-650" />
-                  </button>
-
-                  <button 
-                    onClick={() => setSelectedOnboardCand('EMP-002')}
-                    className={`w-full p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition ${selectedOnboardCand === 'EMP-002' ? 'border-purple-500 bg-purple-50 text-slate-800 font-bold' : 'border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold leading-none mb-1">Tariq Al-Mansoor</p>
-                      <p className="text-[10px] text-slate-405 uppercase font-extrabold tracking-wider">Senior Procurement Officer</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-purple-650" />
-                  </button>
+                <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                  {allOnboardCands.map(cand => (
+                    <button 
+                      key={cand.id}
+                      onClick={() => setSelectedOnboardCand(cand.id)}
+                      className={`w-full p-3 rounded-lg border text-left flex items-center justify-between cursor-pointer transition ${selectedOnboardCand === cand.id ? 'border-purple-500 bg-purple-50 text-slate-805 font-bold' : 'border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      <div className="pr-2">
+                        <p className="text-xs font-bold leading-tight mb-1">{cand.name}</p>
+                        <p className="text-[10px] text-[#7C3AED] uppercase font-extrabold tracking-wider">{cand.position}</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-purple-650 shrink-0" />
+                    </button>
+                  ))}
                 </div>
 
                 <div className="bg-slate-50 border border-slate-150 rounded-lg p-3 text-[11px] text-slate-505 font-semibold">
@@ -425,36 +838,138 @@ export const HROperations: React.FC = () => {
               <div className="lg:col-span-8 space-y-4">
                 <Card className="bg-white border border-slate-200">
                   <CardHeader className="border-b border-slate-100 pb-4">
-                    <CardTitle className="text-xs font-extrabold uppercase text-slate-705 tracking-wider flex items-center gap-2">
-                      <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600" />
-                      Generated Workspace Checklists for: {selectedOnboardCand === 'EMP-001' ? 'Amara Okonkwo' : 'Tariq Al-Mansoor'}
+                    <CardTitle className="text-xs font-extrabold uppercase text-slate-755 tracking-wider flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600" />
+                        Generated Workspace Checklists for: {selectedCandData?.name || 'Amara Okonkwo'}
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-5 space-y-3">
                     
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="border border-slate-150 p-3.5 rounded-xl bg-slate-50/50">
-                        <strong className="text-[11px] uppercase text-indigo-750 block font-bold mb-2">💻 IT & Provisioning Checklist</strong>
-                        <div className="space-y-2 text-[11px] text-slate-700 font-semibold">
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> IT Account Setup (Email, Slack, ClickUp)</div>
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-amber-500" /> Device Allocation (Laptop, Charger, Token)</div>
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-slate-400" /> Access Keys & ID Card Processing</div>
-                        </div>
-                      </div>
+                    {(() => {
+                      const currentChecklist = onboardingChecklists[selectedOnboardCand] || {
+                        id: selectedOnboardCand,
+                        itAccount: false,
+                        deviceAlloc: false,
+                        accessKeys: false,
+                        orientation: false,
+                        complianceCourse: false,
+                        probationReview: false
+                      };
 
-                      <div className="border border-slate-150 p-3.5 rounded-xl bg-slate-50/50">
-                        <strong className="text-[11px] uppercase text-[#7C3AED] block font-bold mb-2">📅 Compliance & HR Onboarding</strong>
-                        <div className="space-y-2 text-[11px] text-slate-700 font-semibold">
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> Group Orientation Scheduling</div>
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-emerald-500" /> HSE Compliance Training Module dispatch</div>
-                          <div className="flex items-center gap-2"><span className="w-2 h-2 rounded bg-amber-500" /> Probation Review 90-Day Scheduling</div>
+                      const checkedCount = [
+                        currentChecklist.itAccount,
+                        currentChecklist.deviceAlloc,
+                        currentChecklist.accessKeys,
+                        currentChecklist.orientation,
+                        currentChecklist.complianceCourse,
+                        currentChecklist.probationReview
+                      ].filter(Boolean).length;
+                      const checklistProgress = Math.round((checkedCount / 6) * 100);
+
+                      return (
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex justify-between items-center text-xs font-black mb-1.5 text-slate-450 uppercase">
+                              <span>Checklist Integration Flow</span>
+                              <span className="text-[#7C3AED]">{checklistProgress}% Completed ({checkedCount}/6 subtasks done)</span>
+                            </div>
+                            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                              <div className="bg-[#7C3AED] h-full transition-all duration-300" style={{ width: `${checklistProgress}%` }} />
+                            </div>
+                          </div>
+
+                          <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="border border-slate-150 p-4 rounded-xl bg-slate-50/50 space-y-3">
+                              <strong className="text-[11px] uppercase text-indigo-750 block font-black">💻 IT & Logistics checklist</strong>
+                              <div className="space-y-3.5 text-xs font-bold text-slate-700">
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.itAccount} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'itAccount')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5" 
+                                  />
+                                  <span className={currentChecklist.itAccount ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    IT Account Provisioning (Email, ATMA, Slack)
+                                  </span>
+                                </label>
+
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.deviceAlloc} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'deviceAlloc')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5"  
+                                  />
+                                  <span className={currentChecklist.deviceAlloc ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    Assets Allocation (Laptop hardware, Charger)
+                                  </span>
+                                </label>
+
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.accessKeys} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'accessKeys')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5"  
+                                  />
+                                  <span className={currentChecklist.accessKeys ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    Access Smartcard & Digital Keys Setup
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="border border-slate-150 p-4 rounded-xl bg-slate-50/50 space-y-3">
+                              <strong className="text-[11px] uppercase text-[#7C3AED] block font-black">📅 HR & Compliance checklist</strong>
+                              <div className="space-y-3.5 text-xs font-bold text-slate-700">
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.orientation} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'orientation')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5"  
+                                  />
+                                  <span className={currentChecklist.orientation ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    Scheduled group Orientation (ADA Okafor)
+                                  </span>
+                                </label>
+
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.complianceCourse} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'complianceCourse')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5"  
+                                  />
+                                  <span className={currentChecklist.complianceCourse ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    Assigned HSE Operations Safety Class
+                                  </span>
+                                </label>
+
+                                <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={currentChecklist.probationReview} 
+                                    onChange={() => handleToggleOnboardingCheckbox(selectedOnboardCand, 'probationReview')}
+                                    className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED] h-4.5 w-4.5"  
+                                  />
+                                  <span className={currentChecklist.probationReview ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                                    Set 90-day Performance Milestone reviews
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
 
                     <div className="pt-4 border-t border-slate-100 mt-4 flex justify-between items-center text-[10px] text-slate-405 font-extrabold uppercase">
-                      <span>Status: Auto Trigger Active</span>
-                      <span className="text-[#7C3AED]">Linked to Form Triggers</span>
+                      <span>Status: Integrated Workspaces Active</span>
+                      <span className="text-[#7C3AED]">Real-time Local Storage Synchronized</span>
                     </div>
 
                   </CardContent>
@@ -470,8 +985,13 @@ export const HROperations: React.FC = () => {
         {activeTab === 'records' && (
           <div className="bg-white border border-slate-201 rounded-xl shadow-xs overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest">Digital Employee Master Roll</h3>
-              <span className="text-[10px] bg-slate-200 px-2.5 py-1 rounded font-bold">{employeeRecords.length} Active Records</span>
+              <div>
+                <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Digital Employee Master Roll</h3>
+                <span className="text-[10px] bg-slate-200 px-2.5 py-1 rounded font-bold">{employeeRecords.length} Active Records</span>
+              </div>
+              <Button variant="primary" size="xs" onClick={() => setAddEmployeeModal(true)} className="gap-1 font-bold cursor-pointer">
+                <UserPlus className="h-3.5 w-3.5" /> Register New Employee
+              </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-bold select-none">
@@ -483,7 +1003,8 @@ export const HROperations: React.FC = () => {
                     <th className="p-3.5">Position</th>
                     <th className="p-3.5">Email</th>
                     <th className="p-3.5">Modality</th>
-                    <th className="p-3.5 text-right">Status</th>
+                    <th className="p-3.5 text-center">Status</th>
+                    <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -495,8 +1016,17 @@ export const HROperations: React.FC = () => {
                       <td className="p-3.5 text-indigo-700">{rec.pos}</td>
                       <td className="p-3.5 lowercase text-slate-500 font-semibold">{rec.email}</td>
                       <td className="p-3.5 font-semibold text-slate-600">{rec.contract}</td>
+                      <td className="p-3.5 text-center">
+                        <Badge variant={rec.status === 'Active' ? 'green' : rec.status === 'On Probation' ? 'amber' : 'red'}>{rec.status}</Badge>
+                      </td>
                       <td className="p-3.5 text-right">
-                        <Badge variant={rec.status === 'Active' ? 'green' : 'amber'}>{rec.status}</Badge>
+                        <button 
+                          onClick={() => handleDeleteEmployee(rec.id, rec.name)}
+                          className="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition cursor-pointer"
+                          title="Delete Record"
+                        >
+                          <Trash2 className="h-4.5 w-4.5" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -580,7 +1110,7 @@ export const HROperations: React.FC = () => {
                 <div className="p-3.5 rounded-xl border border-slate-150 bg-slate-50 flex justify-between items-center text-slate-700">
                   <div>
                     <strong className="text-xs font-bold block text-slate-900">Mid-Year HOD Appraisals</strong>
-                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ClickUp List: Appraisal Forms</span>
+                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ATMA List: Appraisal Forms</span>
                   </div>
                   <Badge variant="green">Active</Badge>
                 </div>
@@ -588,7 +1118,7 @@ export const HROperations: React.FC = () => {
                 <div className="p-3.5 rounded-xl border border-slate-150 bg-slate-50 flex justify-between items-center text-slate-700">
                   <div>
                     <strong className="text-xs font-bold block text-slate-900">Annual Peer-to-Peer Review Sync</strong>
-                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ClickUp List: Peer Appraisals</span>
+                    <span className="text-[10px] text-purple-650 font-bold block uppercase mt-0.5">ATMA List: Peer Appraisals</span>
                   </div>
                   <Badge variant="amber">Not Started</Badge>
                 </div>
@@ -599,7 +1129,7 @@ export const HROperations: React.FC = () => {
               <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-2">
                 <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Review Template Automation</h4>
                 <p className="text-[11px] text-slate-655 font-semibold leading-relaxed">
-                  Every 180 Days, ClickUp automatically sends standard performance forms and templates to team members, generating active task lines in respective HOD clearance schedules.
+                  Every 180 Days, ATMA automatically sends standard performance forms and templates to team members, generating active task lines in respective HOD clearance schedules.
                 </p>
                 <div className="pt-3">
                   <Button variant="outline" size="sm" onClick={() => setActiveFormModal('performance')}>
@@ -632,27 +1162,153 @@ export const HROperations: React.FC = () => {
         {/* TRAINING TAB */}
         {activeTab === 'training' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-slate-200 p-6">
-              <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest mb-4">Mandatory Compliance Training Logs</h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-xs font-extrabold text-slate-700 mb-1">
-                    <span>HSE Site Operations Safety Course</span>
-                    <span className="text-emerald-600">92% Compliance</span>
+            {/* Compliance Stats Deck */}
+            <div className="grid md:grid-cols-3 gap-4">
+              {COURSES.map(course => {
+                // calculate dynamic compliance
+                const list = employeeTrainings.filter(t => t.courseId === course.id);
+                const avgProgress = list.length > 0 
+                  ? Math.round(list.reduce((acc, cur) => acc + cur.progress, 0) / list.length) 
+                  : 0;
+                
+                return (
+                  <div key={course.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                    <span className="text-[9px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded font-black uppercase tracking-wider">{course.id}</span>
+                    <h4 className="text-xs font-black text-slate-800 leading-tight mt-1">{course.name}</h4>
+                    <div>
+                      <div className="flex justify-between text-[11px] font-bold text-slate-600 mb-1">
+                        <span>Staff Enrollment Average:</span>
+                        <span className="text-emerald-600">{avgProgress}% Compliance</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div className="bg-emerald-600 h-full transition-all" style={{ width: `${avgProgress}%` }} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-600 h-full rounded-full" style={{ width: '92%' }} />
-                  </div>
+                );
+              })}
+            </div>
+
+            <div className="grid lg:grid-cols-12 gap-6 items-start">
+              {/* Form to Assign or Update Tuition */}
+              <div className="lg:col-span-5 bg-white border border-slate-200 p-5 rounded-xl space-y-4 shadow-xs">
+                <div className="border-b border-slate-100 pb-3">
+                  <h4 className="text-xs font-black text-slate-850 uppercase tracking-wider flex items-center gap-1.5">
+                    <GraduationCap className="h-4.5 w-4.5 text-[#7C3AED]" /> Assign & Update Tuition
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-bold mt-0.5">Enroll any dynamic employee or update their progression metrics live.</p>
                 </div>
 
-                <div>
-                  <div className="flex justify-between text-xs font-extrabold text-slate-700 mb-1">
-                    <span>ClickUp Solution Workspace Training</span>
-                    <span className="text-emerald-500">85% Compliance</span>
+                <form onSubmit={handleAssignTraining} className="space-y-4 text-xs font-bold text-slate-705">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Select Employee Staff</label>
+                    <select
+                      required
+                      value={assignTrainEmpId}
+                      onChange={(e) => setAssignTrainEmpId(e.target.value)}
+                      className="w-full p-2.5 border border-slate-200 rounded-lg bg-white font-semibold text-slate-800 outline-none"
+                    >
+                      <option value="">-- Choose Employee --</option>
+                      {employeeRecords.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name} ({emp.dept} - {emp.pos})</option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '85%' }} />
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">Target Training Module Course</label>
+                    <select
+                      value={assignTrainCourseId}
+                      onChange={(e) => setAssignTrainCourseId(e.target.value)}
+                      className="w-full p-2.5 border border-slate-200 rounded-lg bg-white font-semibold text-slate-800 outline-none"
+                    >
+                      {COURSES.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
                   </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-500 mb-1">
+                      <span>Module Completion Progress</span>
+                      <span className="text-[#7C3AED] font-black">{assignTrainProgress}%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={assignTrainProgress}
+                        onChange={(e) => setAssignTrainProgress(parseInt(e.target.value))}
+                        className="w-full accent-[#7C3AED] cursor-pointer h-1.5 bg-slate-100 rounded-lg appearance-none"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={assignTrainProgress}
+                        onChange={(e) => setAssignTrainProgress(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
+                        className="w-16 p-1 text-center border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600 font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center gap-2 pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => { setAssignTrainProgress(100); }}
+                      className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] py-1.5 px-3 rounded font-bold cursor-pointer transition"
+                    >
+                      Set to 100%
+                    </button>
+                    <Button variant="primary" size="xs" type="submit" className="font-bold shrink-0">
+                      Submit Enrollment Progress
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Training Database Listing */}
+              <div className="lg:col-span-7 bg-white border border-slate-200 p-5 rounded-xl shadow-xs space-y-3">
+                <div className="border-b border-slate-100 pb-3 flex justify-between items-center">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Tuition Completion Progress Records</h4>
+                    <p className="text-[10px] text-slate-500 font-bold mt-0.5">Check, modify, and authorize completion of certified curriculums.</p>
+                  </div>
+                  <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-extrabold">{employeeTrainings.length} Logged Enrollments</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs font-semibold text-slate-700">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-[9px] uppercase font-bold text-slate-400">
+                        <th className="pb-2">Employee Name</th>
+                        <th className="pb-2">Course Name</th>
+                        <th className="pb-2 text-center">Progression</th>
+                        <th className="pb-2 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50 text-[11px] font-bold">
+                      {employeeTrainings.map((t, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50 transition">
+                          <td className="py-2.5 text-slate-900 font-extrabold">{t.employeeName}</td>
+                          <td className="py-2.5 text-slate-500 text-xs max-w-[200px] truncate" title={t.courseName}>{t.courseName}</td>
+                          <td className="py-2.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <span className="text-[10px] text-indigo-700 font-black shrink-0 w-8 text-right">{t.progress}%</span>
+                              <div className="w-12 bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0">
+                                <div className="bg-indigo-600 h-full transition-all" style={{ width: `${t.progress}%` }} />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-2.5 text-right">
+                            <Badge variant={t.status === 'Completed' ? 'green' : 'amber'}>{t.status}</Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -664,48 +1320,195 @@ export const HROperations: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
               <div>
-                <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-wide">Exit Clearance & handover check</h3>
-                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Tying offboard clearances directly to asset return files.</p>
+                <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-wide">Exit Clearance & Handover Check</h3>
+                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Tying offboard clearances directly to asset return files and deprovisioning pipelines.</p>
               </div>
               <Button variant="outline" size="xs" onClick={() => setActiveFormModal('exit')}>
                 Test Exit Clearance Form
               </Button>
             </div>
 
-            <div className="bg-white border border-slate-201 rounded-xl shadow-xs overflow-hidden">
-              <table className="w-full text-left text-xs font-bold select-none">
-                <thead>
-                  <tr className="bg-slate-150 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-200">
-                    <th className="p-3">Staff Name</th>
-                    <th className="p-3">Position</th>
-                    <th className="p-3">Exit Target Date</th>
-                    <th className="p-3">Department</th>
-                    <th className="p-3">Clearance Completion</th>
-                    <th className="p-3 text-right">Audit Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {exitProcesses.map(p => (
-                    <tr key={p.id} className="hover:bg-slate-50 transition">
-                      <td className="p-3 text-slate-900 font-extrabold">{p.name}</td>
-                      <td className="p-3 text-[#7C3AED] font-bold">{p.pos}</td>
-                      <td className="p-3 text-slate-500">{p.exitDate}</td>
-                      <td className="p-3 text-slate-500">{p.dept}</td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-extrabold text-indigo-750">{p.clearance}</span>
-                          <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-indigo-600 h-full" style={{ width: p.clearance }} />
-                          </div>
+            <div className="grid lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Left Column: Lists exit requests */}
+              <div className="lg:col-span-7 bg-white border border-slate-201 rounded-xl shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest">Active Offboarding Queue</h4>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs font-bold select-none">
+                    <thead>
+                      <tr className="bg-slate-150 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-200">
+                        <th className="p-3">Staff Name</th>
+                        <th className="p-3">Position</th>
+                        <th className="p-3">Exit Target Date</th>
+                        <th className="p-3">Clearance Completion</th>
+                        <th className="p-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {exitProcesses.map(p => {
+                        // calculate live clearance
+                        const checkedCount = [p.itRevoked, p.assetsReturned, p.interviewDone, p.financeSettled].filter(Boolean).length;
+                        const clearancePct = Math.round((checkedCount / 4) * 100);
+
+                        return (
+                          <tr 
+                            key={p.id} 
+                            onClick={() => setSelectedExitProcessId(p.id)}
+                            className={`cursor-pointer transition hover:bg-slate-50/80 ${selectedExitProcessId === p.id ? 'bg-purple-50/80' : ''}`}
+                          >
+                            <td className="p-3 text-slate-900 font-extrabold">
+                              <div>{p.name}</div>
+                              <div className="text-[9px] text-slate-400 uppercase">{p.dept}</div>
+                            </td>
+                            <td className="p-3 text-[#7C3AED] font-bold text-xs">{p.pos}</td>
+                            <td className="p-3 text-slate-500">{p.exitDate}</td>
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-extrabold text-indigo-750">{clearancePct}%</span>
+                                <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-indigo-600 h-full" style={{ width: `${clearancePct}%` }} />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-3 text-right">
+                              <Badge variant={p.auditStatus === 'Cleared' ? 'green' : 'amber'}>{p.auditStatus}</Badge>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column: Dynamic Clearance Checklist Control Panel */}
+              <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
+                {(() => {
+                  const activeProcess = exitProcesses.find(p => p.id === selectedExitProcessId) || exitProcesses[0];
+                  
+                  if (!activeProcess) {
+                    return (
+                      <div className="p-8 text-center text-slate-400 italic text-xs">
+                        No offboarding requests active. Submit one using the tool above.
+                      </div>
+                    );
+                  }
+
+                  const checkedCount = [
+                    activeProcess.itRevoked,
+                    activeProcess.assetsReturned,
+                    activeProcess.interviewDone,
+                    activeProcess.financeSettled
+                  ].filter(Boolean).length;
+
+                  const clearancePct = Math.round((checkedCount / 4) * 100);
+                  const isFullyCleared = checkedCount === 4;
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="border-b border-slate-100 pb-3">
+                        <span className="text-[9px] bg-red-50 text-rose-600 border border-rose-100 font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
+                          Clearance Runbook Schedule: {activeProcess.id}
+                        </span>
+                        <h4 className="text-sm font-black text-slate-900 mt-2">{activeProcess.name}</h4>
+                        <p className="text-[10px] text-slate-500 font-extrabold uppercase mt-0.5">{activeProcess.pos} • {activeProcess.dept}</p>
+                      </div>
+
+                      {/* Overall Progress Bar */}
+                      <div>
+                        <div className="flex justify-between items-center text-[10px] font-black text-slate-450 uppercase mb-1.5">
+                          <span>Audit Sign-off Checklist Progress</span>
+                          <span className="text-indigo-700">{clearancePct}% Verified</span>
                         </div>
-                      </td>
-                      <td className="p-3 text-right">
-                        <Badge variant={p.auditStatus === 'Cleared' ? 'green' : 'amber'}>{p.auditStatus}</Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div className="bg-indigo-600 h-full transition-all duration-300" style={{ width: `${clearancePct}%` }} />
+                        </div>
+                      </div>
+
+                      {/* Checkbox fields */}
+                      <div className="bg-slate-50 border border-slate-150 p-4 rounded-xl space-y-3.5">
+                        <strong className="text-[11px] uppercase text-rose-700 block font-black border-b border-slate-100 pb-1.5">Required Clearances</strong>
+                        
+                        <div className="space-y-3 text-xs font-bold text-slate-700">
+                          <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                            <input 
+                              type="checkbox" 
+                              checked={activeProcess.itRevoked} 
+                              onChange={() => handleToggleExitCheckbox(activeProcess.id, 'itRevoked')}
+                              disabled={activeProcess.auditStatus === 'Cleared'}
+                              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4.5 w-4.5" 
+                            />
+                            <span className={activeProcess.itRevoked ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                              IT & Account Deprovisioning (Emails, Slack, Auth)
+                            </span>
+                          </label>
+
+                          <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                            <input 
+                              type="checkbox" 
+                              checked={activeProcess.assetsReturned} 
+                              disabled={activeProcess.auditStatus === 'Cleared'}
+                              onChange={() => handleToggleExitCheckbox(activeProcess.id, 'assetsReturned')}
+                              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4.5 w-4.5"  
+                            />
+                            <span className={activeProcess.assetsReturned ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                              Return Company Asset hardware (Laptops, Smartcards, Tokens)
+                            </span>
+                          </label>
+
+                          <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                            <input 
+                              type="checkbox" 
+                              checked={activeProcess.interviewDone} 
+                              disabled={activeProcess.auditStatus === 'Cleared'}
+                              onChange={() => handleToggleExitCheckbox(activeProcess.id, 'interviewDone')}
+                              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4.5 w-4.5"  
+                            />
+                            <span className={activeProcess.interviewDone ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                              Conduct Exit Survey Interview with HR Specialist
+                            </span>
+                          </label>
+
+                          <label className="flex items-center gap-2.5 select-none cursor-pointer hover:text-slate-900 transition">
+                            <input 
+                              type="checkbox" 
+                              checked={activeProcess.financeSettled} 
+                              disabled={activeProcess.auditStatus === 'Cleared'}
+                              onChange={() => handleToggleExitCheckbox(activeProcess.id, 'financeSettled')}
+                              className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4.5 w-4.5"  
+                            />
+                            <span className={activeProcess.financeSettled ? 'line-through text-slate-400 font-medium' : 'text-slate-750'}>
+                              Finance & Payroll Settled (Decommission payroll ledger)
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Authorized Button */}
+                      <div>
+                        {activeProcess.auditStatus === 'Cleared' ? (
+                          <div className="bg-emerald-50 border border-emerald-200 text-emerald-850 px-4 py-3 rounded-lg text-xs font-bold leading-normal flex items-center gap-2">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                            This employee is fully authorized and signed off. Master payroll records have been successfully deactivated.
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={!isFullyCleared}
+                            onClick={() => handleFinalExitSignoff(activeProcess.id)}
+                            className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white disabled:bg-slate-100 disabled:text-slate-400 border border-[#7C3AED]/20 disabled:border-slate-200 font-extrabold text-xs uppercase tracking-wider py-3 px-3 rounded-lg transition text-center cursor-pointer shadow-xs"
+                          >
+                            {isFullyCleared ? "🚀 Authorize Official Clearance & Sign-off" : "🔒 All Clearances Required for Sign-off"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
             </div>
           </div>
         )}
@@ -716,7 +1519,7 @@ export const HROperations: React.FC = () => {
       {/* 1. RECRUITMENT REQUEST FORM */}
       <Modal isOpen={activeFormModal === 'recruitment'} onClose={() => setActiveFormModal(null)} title="Intake Form: Recruitment Request" footer={null}>
         <form onSubmit={handleRecruitmentIntakeSubmit} className="space-y-4 font-bold text-xs">
-          <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+          <Badge variant="indigo">ATMA Form Embed Active</Badge>
           
           <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
             <div>
@@ -823,7 +1626,7 @@ export const HROperations: React.FC = () => {
        {/* 2. LEAVE APPLICATION FORM */}
        <Modal isOpen={activeFormModal === 'leave'} onClose={() => setActiveFormModal(null)} title="Intake Form: Leave Application" footer={null}>
          <form onSubmit={handleLeaveIntakeSubmit} className="space-y-4 font-bold text-xs">
-           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+           <Badge variant="indigo">ATMA Form Embed Active</Badge>
  
            <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
              <div>
@@ -907,7 +1710,7 @@ export const HROperations: React.FC = () => {
        {/* 3. PERFORMANCE REVIEW FORM */}
        <Modal isOpen={activeFormModal === 'performance'} onClose={() => setActiveFormModal(null)} title="Intake Form: HOD Appraisal Submit" footer={null}>
          <form onSubmit={handlePerformanceIntakeSubmit} className="space-y-4 font-bold text-xs">
-           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+           <Badge variant="indigo">ATMA Form Embed Active</Badge>
  
            <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
              <div>
@@ -950,7 +1753,7 @@ export const HROperations: React.FC = () => {
        {/* 4. EXIT CLEARANCE FORM */}
        <Modal isOpen={activeFormModal === 'exit'} onClose={() => setActiveFormModal(null)} title="Intake Form: Exit & Offboard Clearance Check" footer={null}>
          <form onSubmit={handleExitIntakeSubmit} className="space-y-4 font-bold text-xs">
-           <Badge variant="indigo">ClickUp Form Embed Active</Badge>
+           <Badge variant="indigo">ATMA Form Embed Active</Badge>
  
            <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150 text-slate-700">
              <div>
@@ -1089,6 +1892,95 @@ export const HROperations: React.FC = () => {
             </Button>
             <Button variant="primary" size="sm" type="submit">
               Submit Form Intake
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* 5. ADD NEW EMPLOYEE MANUAL REGISTRATION */}
+      <Modal isOpen={addEmployeeModal} onClose={() => setAddEmployeeModal(false)} title="Register New Employee Staff" footer={null}>
+        <form onSubmit={handleAddNewEmployee} className="space-y-4 font-bold text-xs text-slate-705">
+          <div className="space-y-4 bg-slate-50/55 p-4 rounded-xl border border-slate-150">
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Full Name</label>
+              <input 
+                type="text" 
+                required 
+                placeholder="e.g. Hassan Bello" 
+                value={newEmpName} 
+                onChange={(e) => setNewEmpName(e.target.value)} 
+                className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-650" 
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Position / Office Title</label>
+              <input 
+                type="text" 
+                required 
+                placeholder="e.g. Logistics Supervisor" 
+                value={newEmpPos} 
+                onChange={(e) => setNewEmpPos(e.target.value)} 
+                className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-650" 
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Department</label>
+                <select 
+                  value={newEmpDept} 
+                  onChange={(e) => setNewEmpDept(e.target.value)} 
+                  className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg bg-white focus:outline-none"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Procurement">Procurement</option>
+                  <option value="HSE">HSE</option>
+                  <option value="Operations">Operations</option>
+                  <option value="HR & Admin">HR & Admin</option>
+                  <option value="Finance">Finance</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Modality</label>
+                <select 
+                  value={newEmpContract} 
+                  onChange={(e) => setNewEmpContract(e.target.value as any)} 
+                  className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg bg-white focus:outline-none"
+                >
+                  <option value="Full-time">Full-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Consultant">Consultant</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Work Email</label>
+              <input 
+                type="email" 
+                placeholder="e.g. h.bello@atma-ops.com" 
+                value={newEmpEmail} 
+                onChange={(e) => setNewEmpEmail(e.target.value)} 
+                className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-650" 
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-505 mb-1">Initial Status</label>
+              <select 
+                value={newEmpStatus} 
+                onChange={(e) => setNewEmpStatus(e.target.value as any)} 
+                className="w-full p-2.5 text-xs font-semibold border border-slate-200 rounded-lg bg-white focus:outline-none"
+              >
+                <option value="Active">Active</option>
+                <option value="On Probation">On Probation</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button variant="outline" size="sm" type="button" onClick={() => setAddEmployeeModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" type="submit">
+              Register Employee
             </Button>
           </div>
         </form>

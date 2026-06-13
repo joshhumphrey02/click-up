@@ -37,7 +37,7 @@ export const UserTraining: React.FC = () => {
       icon: Users,
       badge: 'C-Suite & HODs',
       focus: ['Strategic Dashboard Customization', 'Approval Queues Routing & Auditing', 'Bottleneck Reporting Visualizations'],
-      deliverables: ['ClickUp Executive Quick-Cheat Sheet', 'Executive Dashboard Interactive Video Guides'],
+      deliverables: ['ATMA Executive Quick-Cheat Sheet', 'Executive Dashboard Interactive Video Guides'],
       duration: '4 Hours Total Sessions'
     },
     {
@@ -147,7 +147,7 @@ export const UserTraining: React.FC = () => {
             <CardHeader className="border-b border-slate-100">
               <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                ClickUp Solution Adoption Checklist
+                ATMA Solution Adoption Checklist
               </CardTitle>
               <p className="text-xs text-slate-405 mt-0.5 font-semibold">
                 Mark off training and integration milestones as implementation steps complete.

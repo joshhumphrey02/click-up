@@ -185,7 +185,7 @@ export const Projects: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: PMO-TRACKER
+            ATMA Space: PMO-TRACKER
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">Project Execution Tracker</h2>
           <p className="text-xs text-slate-550 mt-1 font-semibold">
@@ -213,7 +213,7 @@ export const Projects: React.FC = () => {
           icon={BarChart3}
           value="₦445.0M"
           label="Combined PMO Appropriations"
-          description="Capital allocations in ClickUp ledger"
+          description="Capital allocations in ATMA ledger"
           variant="emerald"
         />
         <StatCard
@@ -261,7 +261,7 @@ export const Projects: React.FC = () => {
           </button>
         </div>
         <span className="text-[10px] text-slate-400 font-extrabold uppercase mr-3 hidden sm:inline-block">
-          ClickUp Workspace View Modes
+          ATMA Workspace View Modes
         </span>
       </div>
 

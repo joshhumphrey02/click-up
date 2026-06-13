@@ -18,7 +18,7 @@ export interface OnboardingTask {
   name: string;
   position: string;
   department: string;
-  status: 'New Request' | 'Under Review' | 'Interview Stage' | 'Offer Sent' | 'Onboarding' | 'Completed';
+  status: 'New Request' | 'Request Submitted' | 'Under Review' | 'Shortlisting' | 'Interview Scheduled' | 'Offer Approved' | 'Hired' | 'Onboarding Started' | 'Interview Stage' | 'Offer Sent' | 'Onboarding' | 'Completed';
   startDate: string;
   contractType: 'Full-time' | 'Contract' | 'Consultant';
   employeeId: string;

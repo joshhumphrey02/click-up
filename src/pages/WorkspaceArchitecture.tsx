@@ -36,7 +36,7 @@ export const WorkspaceArchitecture: React.FC = () => {
     {
       id: 1,
       name: '1. HR Operations System',
-      description: 'Centralized ClickUp Space managing recruitments, core personnel management, training logs and exits.',
+      description: 'Centralized ATMA Space managing recruitments, core personnel management, training logs and exits.',
       icon: '👥',
       color: 'border-l-4 border-l-blue-500',
       folders: [
@@ -60,7 +60,7 @@ export const WorkspaceArchitecture: React.FC = () => {
     {
       id: 2,
       name: '2. Procurement Workflow System',
-      description: 'ClickUp Space containing purchase requests, RFQs, evaluations, purchase orders, and payment escalations.',
+      description: 'ATMA Space containing purchase requests, RFQs, evaluations, purchase orders, and payment escalations.',
       icon: '🛒',
       color: 'border-l-4 border-l-purple-500',
       folders: [
@@ -171,7 +171,7 @@ export const WorkspaceArchitecture: React.FC = () => {
         },
         {
           name: 'Post-Meeting Actions',
-          description: 'Task assignments tied to ClickUp lists',
+          description: 'Task assignments tied to ATMA lists',
           lists: ['Board Action Items Tracker', 'Decisions Log']
         }
       ]
@@ -209,16 +209,16 @@ export const WorkspaceArchitecture: React.FC = () => {
         </div>
         <div className="z-10 relative">
           <span className="bg-blue-500 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded">
-            ClickUp Implementation Schema
+            ATMA Implementation Schema
           </span>
           <h1 className="text-2xl font-black mt-3 tracking-tight">Enterprise Workspace Architecture</h1>
           <p className="text-xs text-blue-300 mt-1 max-w-2xl leading-relaxed">
-            A blueprint demonstrating how digital operations are organized into hierarchical ClickUp Spaces, Folders, and Lists.
+            A blueprint demonstrating how digital operations are organized into hierarchical ATMA Spaces, Folders, and Lists.
           </p>
         </div>
       </div>
 
-      {/* Visually descriptive ClickUp Hierarchy Diagram Card */}
+      {/* Visually descriptive ATMA Hierarchy Diagram Card */}
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         
         {/* Hierarchy Overview (Left 4 columns) */}
@@ -236,7 +236,7 @@ export const WorkspaceArchitecture: React.FC = () => {
                   1
                 </span>
                 <strong className="text-slate-900 text-[11px] uppercase tracking-wider block">Workspace</strong>
-                <p className="text-[10px] text-slate-500 mt-0.5 leading-tight font-medium">ClickUp Platform</p>
+                <p className="text-[10px] text-slate-500 mt-0.5 leading-tight font-medium">ATMA Platform</p>
               </div>
 
               <div className="relative pl-6">
@@ -333,7 +333,7 @@ export const WorkspaceArchitecture: React.FC = () => {
                         </h4>
                       </div>
                       <span className="text-[10px] text-purple-750 font-bold bg-purple-100/60 px-2 py-0.5 rounded-full">
-                        {folder.lists.length} ClickUp Lists
+                        {folder.lists.length} ATMA Lists
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-505 font-medium mb-3 leading-relaxed">

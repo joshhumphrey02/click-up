@@ -205,7 +205,7 @@ export const Procurement: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: Procurement-PRs
+            ATMA Space: Procurement-PRs
           </span>
           <h2 className="text-xl font-black text-slate-900 mt-2">Procurement Workflow</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -222,7 +222,7 @@ export const Procurement: React.FC = () => {
         <StatCard
           icon={ShoppingCart}
           value={`${activeCount} Active`}
-          label="Active ClickUp Items"
+          label="Active ATMA Items"
           description="Excludes closed & rejected folders"
           variant="indigo"
         />
@@ -256,7 +256,7 @@ export const Procurement: React.FC = () => {
             <Cpu className="h-4 w-4" />
           </div>
           <div>
-            <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#7C3AED] block">Active ClickUp Automator</span>
+            <span className="text-[9px] uppercase tracking-wider font-extrabold text-[#7C3AED] block">Active ATMA Automator</span>
             <span className="text-slate-700">Dynamic allocation router enforces statutory limits in real-time when requests are logged.</span>
           </div>
         </div>
@@ -269,7 +269,7 @@ export const Procurement: React.FC = () => {
           <CardTitle className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Purchase Order Register</CardTitle>
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-slate-400" />
-            <span className="text-[10px] text-slate-405 font-extrabold">Filter: ClickUp Column Views</span>
+            <span className="text-[10px] text-slate-405 font-extrabold">Filter: ATMA Column Views</span>
           </div>
         </CardHeader>
         <div className="overflow-x-auto">
@@ -420,7 +420,7 @@ export const Procurement: React.FC = () => {
             </div>
 
             <p className="text-[10px] text-slate-405 font-bold italic border-t border-slate-100 pt-3">
-              Auditable ClickUp Trail: Standard compliance rules checked. This item conforms to statutory budget lines.
+              Auditable ATMA Trail: Standard compliance rules checked. This item conforms to statutory budget lines.
             </p>
             
             <div className="flex justify-end pt-3">

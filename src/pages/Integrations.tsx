@@ -215,7 +215,7 @@ export const Integrations: React.FC = () => {
       });
 
       setProcessingSync(false);
-      showToast(`Success: Synced ${addedCount} records from Spreadsheet to ClickUp ${targetSpace}!`);
+      showToast(`Success: Synced ${addedCount} records from Spreadsheet to ATMA ${targetSpace}!`);
     }, 1500);
   };
 
@@ -226,16 +226,16 @@ export const Integrations: React.FC = () => {
 
     if (space === 'HSE') {
       sourceData = hseIncidents;
-      filename = 'clickup_hse_compliance_log.csv';
+      filename = 'atma_hse_compliance_log.csv';
     } else if (space === 'PR') {
       sourceData = purchaseRequests;
-      filename = 'clickup_procurement_pr_register.csv';
+      filename = 'atma_procurement_pr_register.csv';
     } else if (space === 'ONB') {
       sourceData = onboardingTasks;
-      filename = 'clickup_hr_recruitment_registry.csv';
+      filename = 'atma_hr_recruitment_registry.csv';
     } else if (space === 'MEET') {
       sourceData = meetings;
-      filename = 'clickup_meetings_agendas_schedule.csv';
+      filename = 'atma_meetings_agendas_schedule.csv';
     }
 
     if (sourceData.length === 0) {
@@ -347,7 +347,7 @@ export const Integrations: React.FC = () => {
             };
             setDriveFiles(prev => [newFile, ...prev]);
             setUploadProgress(null);
-            showToast(`Success: "${file.name}" synchronized to ClickUp folder on Google Drive!`);
+            showToast(`Success: "${file.name}" synchronized to ATMA folder on Google Drive!`);
           }, 300);
           return 100;
         }
@@ -377,7 +377,7 @@ export const Integrations: React.FC = () => {
   const [whatsappChatHistory, setWhatsappChatHistory] = useState([
     {
       id: 'wa-1',
-      sender: 'ClickUp Operations API',
+      sender: 'ATMA Operations API',
       senderType: 'system',
       message: '🚨 CRITICAL SECURITY INCIDENT ESCALATION: "Electrical Fire near Sector 2 Switchgear" was logged at Main Turbine Sub-Deck. Priority level: Critical. Assigned to: Maryam Bello.',
       timestamp: '09:41 AM',
@@ -385,7 +385,7 @@ export const Integrations: React.FC = () => {
     },
     {
       id: 'wa-2',
-      sender: 'ClickUp Operations API',
+      sender: 'ATMA Operations API',
       senderType: 'system',
       message: '💰 BUDGET NOTIFICATION LIMIT EXCEEDED: PR-8902 (Replacing Cisco Core Switches) of value ₦14,500,000 exceeds standard budget thresholds. Sent for Joint Board Executive Approval.',
       timestamp: '11:15 AM',
@@ -401,7 +401,7 @@ export const Integrations: React.FC = () => {
       case 'procurement_warning':
         return `💰 APPROVAL BYPASS NOTICE: Procurement Docket [Ref] value exceeds limit threshold. Handed over to Executive Command Center.`;
       case 'meeting_brief':
-        return `📅 CLICKUP AGENDA BRIEFING: Regular virtual [Title] scheduled at [Time] via [Platform]. All directors must join. Direct link dispatched on calendar.`;
+        return `📅 ATMA AGENDA BRIEFING: Regular virtual [Title] scheduled at [Time] via [Platform]. All directors must join. Direct link dispatched on calendar.`;
       case 'custom':
         return customNotifyText || 'Enter custom notification payload details...';
       default:
@@ -427,7 +427,7 @@ export const Integrations: React.FC = () => {
 
     const newWAMessage = {
       id: `wa-${Date.now()}`,
-      sender: 'ClickUp Operations API',
+      sender: 'ATMA Operations API',
       senderType: 'system',
       message: `${cleanMsg}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -694,7 +694,7 @@ export const Integrations: React.FC = () => {
                 <div className="bg-indigo-50/15 border border-indigo-100 rounded-2xl p-5 mt-4 space-y-4">
                   <div>
                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight flex items-center gap-1.5">
-                      <Download className="h-4.5 w-4.5 text-[#7C3AED]" /> Live ClickUp Spreadsheet Download Register
+                      <Download className="h-4.5 w-4.5 text-[#7C3AED]" /> Live ATMA Spreadsheet Download Register
                     </h4>
                     <p className="text-[10.5px] text-slate-500 font-semibold leading-relaxed mt-1">
                       Export currently accumulated operational workspace datasets as fully tabular Excel legacy backup sheets. Data downloads as formatted .csv files which integrate directly into local ERP templates.
@@ -857,7 +857,7 @@ export const Integrations: React.FC = () => {
                   <CardHeader className="bg-slate-50/50 p-4 border-b border-slate-200 flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-xs uppercase font-extrabold text-[#7C3AED]">Google Drive Live Backups</CardTitle>
-                      <p className="text-[10px] text-slate-450 font-semibold mt-0.5">Archive files directly from ClickUp Tickets</p>
+                      <p className="text-[10px] text-slate-450 font-semibold mt-0.5">Archive files directly from ATMA Tickets</p>
                     </div>
                     <Badge variant="blue">ACTIVE FOLDER</Badge>
                   </CardHeader>
@@ -997,7 +997,7 @@ export const Integrations: React.FC = () => {
               <CardHeader className="bg-slate-50/50 p-5 border-b border-slate-200">
                 <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-tight">WhatsApp / Twilio Webhook Dispatch Cockpit</CardTitle>
                 <p className="text-[11px] text-slate-505 font-medium mt-0.5 leading-relaxed animate-fade-in">
-                  Simulate dispatching urgent ClickUp automation alerts to HODs and executives on their mobile phones. Select templates, target numbers, and test messaging pathways.
+                  Simulate dispatching urgent ATMA automation alerts to HODs and executives on their mobile phones. Select templates, target numbers, and test messaging pathways.
                 </p>
               </CardHeader>
               <CardContent className="p-5">
@@ -1153,7 +1153,7 @@ export const Integrations: React.FC = () => {
                           </div>
                           <div className="truncate flex-grow leading-tight">
                             <h5 className="font-extrabold text-[11.5px] truncate flex items-center gap-1.5">
-                              ClickUp API Dispatcher
+                              ATMA API Dispatcher
                               <span className="text-[8px] bg-emerald-500/90 text-white px-1.5 py-0.5 rounded-full font-black uppercase text-center block leading-none">
                                 Bot
                               </span>
@@ -1229,7 +1229,7 @@ export const Integrations: React.FC = () => {
 
               <div className="p-3 bg-slate-50 text-slate-700 rounded-xl border border-slate-200">
                 <strong className="block text-slate-900">3. Local File Ingestion Engine</strong>
-                <p className="text-[10px] text-slate-505 font-semibold mt-1">CSV file parser converts spreadsheet structures and inputs them directly into standard clickup spaces.</p>
+                <p className="text-[10px] text-slate-505 font-semibold mt-1">CSV file parser converts spreadsheet structures and inputs them directly into standard atma spaces.</p>
               </div>
 
             </CardContent>

@@ -197,7 +197,7 @@ export const Automations: React.FC = () => {
           description: 'HR systems register a fully countersigned executive job offer contract.'
         },
         {
-          title: 'Action 1: Initialize custom ClickUp Onboarding Folder',
+          title: 'Action 1: Initialize custom ATMA Onboarding Folder',
           description: 'Automatically provisions a personal training profile space and Q2 Training playbook.'
         },
         {
@@ -207,7 +207,7 @@ export const Automations: React.FC = () => {
       ],
       stepToasts: [
         "State-watcher registered countersigned HR contract (Hired).",
-        "Created custom candidate workspace folder on ClickUp.",
+        "Created custom candidate workspace folder on ATMA.",
         "Onboarding Complete: Dispatched digital Q2 Handbook & Hardware request."
       ],
       consoleData: (running: boolean, step: number) => ({
@@ -216,13 +216,13 @@ export const Automations: React.FC = () => {
         isRunning: running,
         matchedCondition: step >= 2,
         recipientsNotified: step >= 3 ? ['Candidate (SMS Hello)', 'HR Ops Team'] : [],
-        loggedActionItems: step >= 4 ? ['ClickUp Onboarding Workspace Directory', 'Hardware Ticket IP-290'] : [],
+        loggedActionItems: step >= 4 ? ['ATMA Onboarding Workspace Directory', 'Hardware Ticket IP-290'] : [],
         candidateContractStatus: 'COUNTERSIGNED'
       }),
       modalOutcome: {
         alertTitle: 'WORKFORCE INTRO SEQUENCE COMPLETED',
         alertDesc: 'Seamless HR contract webhook caught the "Hired" state transition and provisioned the starter suite instantly.',
-        action1: 'Workspace initialized: Personalized onboarding folder structured inside corporate ClickUp Space.',
+        action1: 'Workspace initialized: Personalized onboarding folder structured inside corporate ATMA Space.',
         action2: 'Requisition triggered: Automatic Procurement order submitted for standardized corporate laptop kit.',
         icon1: CheckCircle2,
         icon2: ListTodo
@@ -276,7 +276,7 @@ export const Automations: React.FC = () => {
       trigger: 'Candidate Contract Signed',
       condition: 'When Status transitions to "Hired"',
       actions: [
-        'Initialize Onboarding Folder Space profile in ClickUp',
+        'Initialize Onboarding Folder Space profile in ATMA Space',
         'Dispatch automatic welcome SMS email with Q2 Training playbook',
         'Create "Standard Hardware Package Requisition" task in Procurement Space'
       ],
@@ -324,7 +324,7 @@ export const Automations: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-100 text-purple-750 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Space: WORKFLOW-AUTOMATIONS
+            ATMA Space: WORKFLOW-AUTOMATIONS
           </span>
           <h2 className="text-xl font-black text-slate-905 mt-2">Workflow Automations</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
@@ -374,7 +374,7 @@ export const Automations: React.FC = () => {
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-[#7C3AED] animate-pulse" />
             <div>
-              <CardTitle className="text-sm font-black text-slate-900 leading-tight">Interactive ClickUp Automation Sandbox</CardTitle>
+              <CardTitle className="text-sm font-black text-slate-900 leading-tight">Interactive ATMA Automation Sandbox</CardTitle>
               <p className="text-[11px] text-slate-500 font-semibold mt-0.5">Test real-time statutory recipe triggers in action.</p>
             </div>
           </div>
@@ -487,7 +487,7 @@ export const Automations: React.FC = () => {
       </Card>
 
       {/* Active Rules Grid Layout */}
-      <h3 className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Enterprise ClickUp Recipes Index</h3>
+      <h3 className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">Enterprise ATMA Recipes Index</h3>
       <div className="grid md:grid-cols-2 gap-6 items-start">
         {rulesList.map(rule => (
           <Card key={rule.id} className="bg-white border border-slate-200">
@@ -587,7 +587,7 @@ export const Automations: React.FC = () => {
             })()}
           </div>
 
-          <p className="text-[10px] text-slate-400 italic">This demo mirrors real-time actions execution inside our configured ClickUp operations workspace after implementation.</p>
+          <p className="text-[10px] text-slate-400 italic">This demo mirrors real-time actions execution inside our configured ATMA operations workspace after implementation.</p>
 
           <div className="flex justify-end">
             <Button variant="primary" size="sm" onClick={() => setDemoModalOpen(false)}>

@@ -62,7 +62,7 @@ export const Roadmap: React.FC = () => {
       weeksLabel: 'Weeks 3-4',
       title: 'Active Operational Spaces Deployment & SOP Ingestion',
       duration: '14 Days',
-      focus: 'Configure core ClickUp spaces (HR Operations, Procurement, Projects, Vendor, HSE), and digitize policy SOP templates under core Lists.',
+      focus: 'Configure core ATMA spaces (HR Operations, Procurement, Projects, Vendor, HSE), and digitize policy SOP templates under core Lists.',
       status: 'In Progress',
       readinessPercentage: 80,
       adoptionIndicator: 'HR & Projects teams successfully piloting first-generation digital intake boards.',
@@ -139,7 +139,7 @@ export const Roadmap: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <span className="text-[10px] bg-purple-105 bg-purple-200 text-[#7C3AED] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            ClickUp Workspace: DEPLOYMENT-PLAN
+            ATMA Workspace: DEPLOYMENT-PLAN
           </span>
           <h2 className="text-xl font-black text-slate-905 mt-2">Implementation Timeline</h2>
           <p className="text-xs text-slate-505 mt-1 font-semibold">
